@@ -1,19 +1,15 @@
 library(shiny)
-#playerdata <- read.csv(file="fpprojections.csv", colClasses=c("character","character","character","character","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"))
-#colnames(playerdata) = c("Name","Player","Position","Team","Points","VOR","Passing Yards","Passing TDs","Interceptions","Rushing Yards","Rushing TDs","Receptions","Recieving Yards","Recieving TDs","2 Points","Fumbles","posrank","drafted","Rank","Yahoo Rank","yposrank","VOY")
-#playerdata$Position <- paste(playerdata$Position, "(", playerdata$posrank,")", sep="")
-drafted <- data.frame()
+library(tidyr)
+library(ggplot2)
 
-# myTeam <- data.frame(Pos = c("QB", "WR", "WR", "WR", "RB", "RB", "TE", "", "K", "DEF", "", "", "", "", ""),
-# Player = c(rep("", 15)), Team = c(rep("", 15)))
 source("projections.R")
 source("yahooRanksChart.R")
-# draftdata <- draftdata
+source("getRound.R")
+
+drafted <- data.frame()
 
 shinyServer(function(input, output, clientData, session) {
-  #playerdata <- read.csv(file="fpprojections.csv", colClasses=c("character","character","character","character","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"))
-  #colnames(playerdata) = c("Name","Player","Position","Team","Points","VOR","Passing Yards","Passing TDs","Interceptions","Rushing Yards","Rushing TDs","Receptions","Recieving Yards","Recieving TDs","2 Points","Fumbles","posrank","drafted","Rank","YahooRank","yposrank","VOY")
-  #playerdata$Position <- paste(playerdata$Position, "(", playerdata$posrank,")", sep="")
+
   drafted <- data.frame()
   
   my_team <- data.frame()
@@ -22,7 +18,6 @@ shinyServer(function(input, output, clientData, session) {
     draftdata <- projpts(projections,input$passyds, input$passtds, input$ints, input$rushyds, input$rushtds, input$recs, input$recyds, input$rectds, input$twopts, input$fumbles, input$numofqb, input$numofrb, input$numofwr, input$numofte)
     draftdata$Pos <- paste(draftdata$Pos,"(",draftdata$PosRank,")", sep="")
     draftdata$PosRank <- NULL
-    #draftdata$VOY <- draftdata$Rank - draftdata$YRanking
     datasetInput <- reactive({
       temp <- playerSet()
       if(input$player != "All") {
@@ -31,7 +26,7 @@ shinyServer(function(input, output, clientData, session) {
       else {
         temp[c(1:input$num),]
       }
-    })   
+    })
     playerSet <- reactive({
       if(input$pos != "ALL") {
         temp <- subset(draftdata, substr(draftdata$Pos, 1,2)==input$pos)
@@ -55,23 +50,9 @@ shinyServer(function(input, output, clientData, session) {
     
     output$view <- renderTable({
       a <- as.data.frame(datasetInput())
+      a$YRound <- as.integer(getRound(a$YRank, as.numeric(input$numOfTeams)))
       a
     }, include.rownames=FALSE)
-    
-    #     temp55 <- subset(draftdata, draftdata$Player == input$player)
-    #     print(subset(playerSet(), playerSet()$Player == input$player)$Pos[1])
-    #     if(substr(temp$Pos[1], 1, 2) == "QB") {
-    #       if(myTeam$Player[1] == "") {
-    #         w <- 1
-    #       } else {
-    #         w <- which(myTeam[,1] == "")
-    #         w <- w[w > 8][1]
-    #       }
-    #       #         w <- 1
-    #       myTeam$Pos[w] <- temp$Pos
-    #       myTeam$Player[1] <<- temp$Player
-    #       myTeam$Team[w] <- temp$Team
-    #     }
     
     output$currentPick <- renderText({
       nrow(drafted) + 1
@@ -103,8 +84,6 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     myTeamFormatting <- reactive({
-      # print(my_team)
-      # print(drafted)
       temp <- myTeam()
       qbs <- subset(temp, Pos=="QB")
       rbs <- subset(temp, Pos=="RB")
@@ -220,8 +199,7 @@ shinyServer(function(input, output, clientData, session) {
           bench <- rbind(bench, tes[c(2:nrow(tes)),])
         }
       }
-      #       starters <- starters[, c(3,1,4)]
-      #       bench <- bench[, c(3,1,4)]
+      
       if(nrow(bench) > 0) {
         flex <- subset(bench, bench$Pos != "QB")
         flex <- flex[1,]
@@ -257,11 +235,6 @@ shinyServer(function(input, output, clientData, session) {
       }
       t(matrix)
     }, include.colnames = F)
-    #     output$pic <- renderText({
-    #       temp <- tolower(gsub(" ", "-", input$player))
-    #       w <- which(directory$player==input$player)
-    #       paste("http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/",directory$id[w],".png",sep="")
-    #     })   
     
     output$pic <- renderUI({
       if(input$player != "All") {
@@ -271,36 +244,12 @@ shinyServer(function(input, output, clientData, session) {
       }
     })
 
-    # output$pic <- renderPlot({
-    #   if(input$player != "All") {
-    #     rankingsChart(input$player)
-    #   }
-    # })
-    #     output$hist <- renderPlot({
-    #       try(barplot(table(substr(drafted$Position, 1,2))))
-    #     })
-    
-    # drafted <<- {
-    #   input$draft
-    #   isolate(rbind(drafted, subset(draftdata, draftdata$Player==input$player)))
-    # }
-    # input$draft
-    # isolate({
-    #   drafted <<- rbind(drafted, subset(draftdata, draftdata$Player==input$player))
-    # })
-    # drafted <<- reactiveValues(Player = NULL)
-    # myteam <<- reactiveValues(Player = NULL)
-    # 
-    # observeEvent(input$draft, {
-    #   drafted <<- rbind(drafted, input$player)
-    # })
-    # observeEvent(input$myteam, {
-    #   myteam <<- rbind(my_team, input$player)
-    # })
     input$draft
     isolate({
       drafted <<- rbind(drafted, subset(draftdata, draftdata$Player == input$player))
     })
+    
     updateSelectInput(session, "player", choices = c("All", playerSet()$Player), selected="All")
+    
   })
 })
