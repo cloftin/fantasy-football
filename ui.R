@@ -6,7 +6,7 @@ source("projections.R")
 #draftdata <- projpts(50,5,-2,20,6,.5,20,6,2,-1,17,39,48,13)
 draftdata <- projections
 shinyUI(fluidPage(
-  titlePanel("Football"),
+  titlePanel("J.A.R.V.I.S."),
   tabsetPanel(
     tabPanel("Main",
              sidebarPanel(
