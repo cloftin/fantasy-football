@@ -1,3 +1,4 @@
+library(dplyr)
 library(tidyr)
 source("weekly_fantasy_points.R")
 
@@ -68,12 +69,15 @@ dat[is.na(dat)] <- 0
 
 write.csv(dat, file = "gamelogs.csv", row.names = F)
 
+dat <- read.csv(file = "gamelogs.csv", header = T, stringsAsFactors = F)
+
 for(i in 1:nrow(dat)) {
   dat$pts[i] <- weekly_fantasy_points(dat[i,])
 }
 
 dat$starts <- 0
 dat$top <- 0
+
 qb <- data.frame()
 rb <- data.frame()
 wr <- data.frame()
@@ -87,14 +91,14 @@ for(i in 1:16) {
   
   rbs <- dat %>% filter(Pos == "RB") %>% filter(Week == i)
   rbs <- rbs[order(-rbs$pts),]
-  rbs$top[c(1:3)] <- rbs$top[c(1:3)] + 1
-  rbs$starts[c(1:12)] <- rbs$starts[c(1:12)] + 1
+  rbs$top[c(1:6)] <- rbs$top[c(1:3)] + 1
+  rbs$starts[c(1:24)] <- rbs$starts[c(1:12)] + 1
   rb <- rbind(rb, rbs)
   
   wrs <- dat %>% filter(Pos == "WR") %>% filter(Week == i)
   wrs <- wrs[order(-wrs$pts),]
-  wrs$top[c(1:3)] <- wrs$top[c(1:3)] + 1
-  wrs$starts[c(1:12)] <- wrs$starts[c(1:12)] + 1
+  wrs$top[c(1:9)] <- wrs$top[c(1:3)] + 1
+  wrs$starts[c(1:36)] <- wrs$starts[c(1:12)] + 1
   wr <- rbind(wr, wrs)
   
   tes <- dat %>% filter(Pos == "TE") %>% filter(Week == i)
@@ -118,7 +122,22 @@ b$start_pct <- b$starts / b$games
 b$top_pct <- b$top / b$games
 
 b$cons <- b$wk_sd / b$pts_g
-b$met <- log(b$pts_g ^ (1/b$cons))
+# b$met <- log(((1/b$cons) ^ (20*b$pts_g)) * (100/(1-b$top_pct)) * (1/(1.2-b$start_pct)))
+b$met <- log((30*b$pts_g + (20/(1-b$top_pct)) + (1/1.2-b$start_pct)))# / b$cons)
 
+qbs <- b %>% filter(Pos == "QB")
+qbs <- qbs[order(-qbs$met),]
+qbs %>% filter(games >= 10) %>% head(12)
 
+rbs <- b %>% filter(Pos == "RB")
+rbs <- rbs[order(-rbs$met),]
+rbs %>% filter(games >= 10) %>% head(12)
+
+wrs <- b %>% filter(Pos == "WR")
+wrs <- wrs[order(-wrs$met),]
+wrs %>% filter(games >= 10) %>% head(12)
+
+tes <- b %>% filter(Pos == "TE")
+tes <- tes[order(-tes$met),]
+tes %>% filter(games >= 10) %>% head(12)
 
