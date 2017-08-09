@@ -55,7 +55,7 @@ projpts <- function(x,passyds, passtds, ints, rushyds, rushtds, recs, recyds, re
 
 
 lines <- readLines("https://www.fantasypros.com/nfl/projections/qb.php?week=draft")
-lines <- lines[c((grep(" <tbody>", lines)+1):(grep(" </tbody>", lines)-1))]
+lines <- lines[c((grep(" <tbody>", lines)[1]+1):(grep(" </tbody>", lines)[1]-1))]
 
 qb_fp <- list()
 for(i in 1:(length(lines)/12)) {
@@ -79,7 +79,7 @@ qb_fp$Pos <- "QB"
 qb_fp <- merge(qb_fp, yahoorankings, all.x = T)
 
 lines <- readLines("https://www.fantasypros.com/nfl/projections/rb.php?week=draft")
-lines <- lines[c((grep(" <tbody>", lines)+1):(grep(" </tbody>", lines)-1))]
+lines <- lines[c((grep(" <tbody>", lines)[1]+1):(grep(" </tbody>", lines)[1]-1))]
 
 rb_fp <- list()
 for(i in 1:(length(lines)/10)) {
@@ -103,7 +103,7 @@ rb_fp$Pos <- "RB"
 rb_fp <- merge(rb_fp, yahoorankings, all.x = T)
 
 lines <- readLines("https://www.fantasypros.com/nfl/projections/wr.php?week=draft")
-lines <- lines[c((grep(" <tbody>", lines)+1):(grep(" </tbody>", lines)-1))]
+lines <- lines[c((grep(" <tbody>", lines)[1]+1):(grep(" </tbody>", lines)[1]-1))]
 
 wr_fp <- list()
 for(i in 1:(length(lines)/10)) {
@@ -127,7 +127,7 @@ wr_fp$Pos <- "WR"
 wr_fp <- merge(wr_fp, yahoorankings, all.x = T)
 
 lines <- readLines("https://www.fantasypros.com/nfl/projections/te.php?week=draft")
-lines <- lines[c((grep(" <tbody>", lines)+1):(grep(" </tbody>", lines)-1))]
+lines <- lines[c((grep(" <tbody>", lines)[1]+1):(grep(" </tbody>", lines)[1]-1))]
 
 te_fp <- list()
 for(i in 1:(length(lines)/7)) {
