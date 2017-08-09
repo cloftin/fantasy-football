@@ -18,7 +18,7 @@ shinyUI(fluidPage(
                actionButton("draft", label="Drafted"),
                br(),br(),
                selectInput("numOfTeams", "Number of Teams", c(8, 10, 12, 14), selected = 12),
-               selectInput("whichPick", "Which Pick", c(1:14), selected = 10),
+               selectInput("whichPick", "Which Pick", c(1:14), selected = 4),
                numericInput("passyds","Passing Yards", 50),
                numericInput("passtds", "Passing TDs", 5),
                numericInput("ints", "Interceptions", -2),
@@ -54,7 +54,7 @@ shinyUI(fluidPage(
                ),
                uiOutput("myTeamHeader"),
                uiOutput("myteam"),
-               tableOutput("view")
+               DT::dataTableOutput("view")
                #     plotOutput("hist")
              )
     ),

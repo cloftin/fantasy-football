@@ -8,7 +8,7 @@ projpts <- function(x,passyds, passtds, ints, rushyds, rushtds, recs, recyds, re
   toreturn <- as.data.frame(matrix(ncol=4,nrow=nrow(x)))
   toreturn[,1] <- x[,1]
   toreturn[,2] <- x$Pos
-  toreturn[,3] <- ""
+  toreturn[,3] <- x$Team
   toreturn[,4] <- (x$PassYds/passyds) + (x$PassTDs*passtds) + (x$PassInts*ints) + (x$RushYds/rushyds) + (x$RushTDs*rushtds) + (x$Receptions*recs) + (x$RecYds/recyds) + (x$RecTDs*rectds) + (x$TwoPts*2) + (x$Fumbles*fumbles)
   qbs <- subset(toreturn, toreturn[,2]=="QB")
   qbs <- qbs[order(-qbs[,4]),]
@@ -48,7 +48,8 @@ projpts <- function(x,passyds, passtds, ints, rushyds, rushtds, recs, recyds, re
   toreturn <- toreturn[order(-toreturn[,5]),]
   toreturn$YRank[which(is.na(toreturn$YRank))] <- 0
   toreturn$VOY <- toreturn$YRank - toreturn$Rank
-  toreturn$Team <- NULL
+  toreturn$VOR <- round(toreturn$VOR, 2)
+  # toreturn$Team <- NULL
   return(toreturn)
 }
 
@@ -62,6 +63,7 @@ for(i in 1:(length(lines)/12)) {
 }
 
 qb_fp <- ldply(qb_fp, function(x) {
+  team <- strsplit(strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a> ")[[1]][2], " ")[[1]][1]
   x[1] <- strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a>")[[1]][1]
   x <- gsub("<td class=\\\"center\\\">|</td>", "", x[c(1:11)])
   x <- as.data.frame(rbind(x))
@@ -69,9 +71,10 @@ qb_fp <- ldply(qb_fp, function(x) {
   for(i in 2:ncol(x)) {
     x[,i] <- as.numeric(gsub(",", "", x[,i]))
   }
+  x$Team <- team
   return(x)
 })
-colnames(qb_fp) <- c("Player", "PassYds", "PassTDs", "PassInts", "RushYds", "RushTDs", "Fumbles")
+colnames(qb_fp) <- c("Player", "PassYds", "PassTDs", "PassInts", "RushYds", "RushTDs", "Fumbles", "Team")
 qb_fp$Pos <- "QB"
 qb_fp <- merge(qb_fp, yahoorankings, all.x = T)
 
@@ -84,6 +87,7 @@ for(i in 1:(length(lines)/10)) {
 }
 
 rb_fp <- ldply(rb_fp, function(x) {
+  team <- strsplit(strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a> ")[[1]][2], " ")[[1]][1]
   x[1] <- strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a>")[[1]][1]
   x <- gsub("<td class=\\\"center\\\">|</td>", "", x[c(1:9)])
   x <- as.data.frame(rbind(x))
@@ -91,9 +95,10 @@ rb_fp <- ldply(rb_fp, function(x) {
   for(i in 2:ncol(x)) {
     x[,i] <- as.numeric(gsub(",", "", x[,i]))
   }
+  x$Team <- team
   return(x)
 })
-colnames(rb_fp) <- c("Player", "RushYds", "RushTDs", "Receptions", "RecYds", "RecTDs", "Fumbles")
+colnames(rb_fp) <- c("Player", "RushYds", "RushTDs", "Receptions", "RecYds", "RecTDs", "Fumbles", "Team")
 rb_fp$Pos <- "RB"
 rb_fp <- merge(rb_fp, yahoorankings, all.x = T)
 
@@ -106,6 +111,7 @@ for(i in 1:(length(lines)/10)) {
 }
 
 wr_fp <- ldply(wr_fp, function(x) {
+  team <- strsplit(strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a> ")[[1]][2], " ")[[1]][1]
   x[1] <- strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a>")[[1]][1]
   x <- gsub("<td class=\\\"center\\\">|</td>", "", x[c(1:9)])
   x <- as.data.frame(rbind(x))
@@ -113,9 +119,10 @@ wr_fp <- ldply(wr_fp, function(x) {
   for(i in 2:ncol(x)) {
     x[,i] <- as.numeric(gsub(",", "", x[,i]))
   }
+  x$Team <- team
   return(x)
 })
-colnames(wr_fp) <- c("Player", "RushYds", "RushTDs", "Receptions", "RecYds", "RecTDs", "Fumbles")
+colnames(wr_fp) <- c("Player", "RushYds", "RushTDs", "Receptions", "RecYds", "RecTDs", "Fumbles", "Team")
 wr_fp$Pos <- "WR"
 wr_fp <- merge(wr_fp, yahoorankings, all.x = T)
 
@@ -128,6 +135,7 @@ for(i in 1:(length(lines)/7)) {
 }
 
 te_fp <- ldply(te_fp, function(x) {
+  team <- strsplit(strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a> ")[[1]][2], " ")[[1]][1]
   x[1] <- strsplit(strsplit(x[1], split = "player-name\\\">")[[1]][2], "</a>")[[1]][1]
   x <- gsub("<td class=\\\"center\\\">|</td>", "", x[c(1:6)])
   x <- as.data.frame(rbind(x))
@@ -135,9 +143,10 @@ te_fp <- ldply(te_fp, function(x) {
   for(i in 2:ncol(x)) {
     x[,i] <- as.numeric(gsub(",", "", x[,i]))
   }
+  x$Team <- team
   return(x)
 })
-colnames(te_fp) <- c("Player", "Receptions", "RecYds", "RecTDs", "Fumbles")
+colnames(te_fp) <- c("Player", "Receptions", "RecYds", "RecTDs", "Fumbles", "Team")
 te_fp$Pos <- "TE"
 te_fp <- te_fp[-which(te_fp$Player == "David Johnson"),]
 te_fp <- merge(te_fp, yahoorankings, all.x = T)
@@ -150,7 +159,6 @@ projections <- rbind(projections, merge(big,rb_fp,all.y=T))
 projections <- rbind(projections, merge(big,wr_fp,all.y=T))
 projections <- rbind(projections, merge(big,te_fp,all.y=T))
 projections[is.na(projections)] <- 0
-
 
 passyds=50
 passtds=5
