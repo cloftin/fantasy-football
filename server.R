@@ -53,7 +53,7 @@ shinyServer(function(input, output, clientData, session) {
     tableOutput <- reactive({
       a <- datasetInput() %>% data.frame() %>%
         mutate(YRound = as.integer(getRound(.$YRank, as.numeric(input$numOfTeams))))
-      a <- merge(a, logos, by = "Team")
+      a <- merge(a, logos %>% select(Team, Logo), by = "Team")
       a$Team <- paste0("<img src=\"", a$Logo, "\" height = 40></img>")
       a$Logo <- NULL
       a <- a[order(-a$VOR),]
@@ -63,7 +63,8 @@ shinyServer(function(input, output, clientData, session) {
     
     output$view <- DT::renderDataTable(
       tableOutput(), 
-      options = list(rownames = F, pageLength = 50),
+      options = list(pageLength = 50),
+      rownames = F,
       escape = F
     )
   

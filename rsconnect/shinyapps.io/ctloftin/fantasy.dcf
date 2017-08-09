@@ -1,9 +1,10 @@
 name: fantasy
+title:
 account: ctloftin
 server: shinyapps.io
 appId: 15885
-bundleId: 549163
+bundleId: 934589
 url: https://ctloftin.shinyapps.io/fantasy/
-when: 1473086660.703
+when: 1502301194.01034
 asMultiple: FALSE
 asStatic: FALSE
