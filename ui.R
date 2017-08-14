@@ -5,6 +5,9 @@ playerdata$Position <- paste(playerdata$Position, "(", playerdata$posrank,")", s
 source("projections.R")
 #draftdata <- projpts(50,5,-2,20,6,.5,20,6,2,-1,17,39,48,13)
 draftdata <- projections
+teamNumbers <- c(1:12)
+names(teamNumbers) = c("Brian", "Bryan", "John", "Me", "Steven", "Ben",
+                       "Dan", "Camen", "Kyle", "Raul", "Chip", "Ross")
 shinyUI(fluidPage(
   titlePanel("J.A.R.V.I.S."),
   tabsetPanel(
@@ -61,7 +64,7 @@ shinyUI(fluidPage(
     tabPanel("Team View",
              sidebarPanel(
                style="max-width:225px", 
-               selectInput("teamToView", "View Team:", c(1:12))
+               selectInput("teamToView", "View Team:", teamNumbers)
              ),
              mainPanel(
                tableOutput("teamViewer")
