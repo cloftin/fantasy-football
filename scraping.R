@@ -25,6 +25,8 @@ getYahooRankings <- function() {
       break
     }
   }
+  w <- which(yahoorankings$Player == "Odell Beckham")
+  yahoorankings$Player[w] <- "Odell Beckham Jr."
   return(yahoorankings)
 }
 
