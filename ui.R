@@ -53,7 +53,7 @@ shinyUI(fluidPage(
                  )
                ),
                uiOutput("myTeamHeader"),
-               uiOutput("myteam"),
+               tableOutput("myteam"),
                DT::dataTableOutput("view")
                #     plotOutput("hist")
              )
