@@ -64,27 +64,35 @@ shinyServer(function(input, output, clientData, session) {
       a
     })
     
-    output$view <- DT::renderDataTable(
+    output$playerList <- DT::renderDataTable(
       tableOutput(), 
-      options = list(pageLength = 50),
+      options = list(pageLength = 25),
       rownames = F,
       escape = F
     )
     
-    output$currentPick <- renderText({
-      nrow(drafted) + 1
+    # output$currentPick <- renderText({
+    #   nrow(drafted) + 1
+    # })
+    
+    output$aa <- renderTable({
+      myTeamFormatting()
     })
     
-    output$myTeamHeader <- renderUI({
-      t <- myTeamFormatting()
-      if(nrow(t) > 0 & input$player == "All") {
-        h3("My Team: ")
+    output$myteam <- renderUI({
+      if(nrow(myTeamFormatting()) > 0) {
+        box(title = "My Team", width = 9,
+            renderTable(myTeamFormatting()))
       }
     })
     
-    output$myteam <- renderTable({
-      myTeamFormatting()
+    output$currentPick <- renderValueBox({
+      valueBox(
+        (nrow(drafted) + 1), "Current Pick", icon = icon("ok", lib = "glyphicon"),
+        color = "green"
+      )
     })
+
     
     myTeam <- reactive({
       temp <- drafted
@@ -249,10 +257,10 @@ shinyServer(function(input, output, clientData, session) {
       rownames(matrix) <- c("Brian", "Bryan", "John", "Me", "Steven", "Ben",
                             "Dan", "Camen", "Kyle", "Raul", "Chip", "Ross")
       t(matrix)
-
+      
     }, include.colnames = T, include.rownames = T)
     
-    output$pic <- renderUI({
+    output$rankingsChart <- renderUI({
       if(input$player != "All") {
         graph <- rankingsChart(input$player)
         output$p <- renderPlot({graph})
