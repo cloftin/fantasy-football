@@ -22,7 +22,7 @@ rankingsChart <- function(playerName) {
   }
   
   if(minLimit < 1) {
-    minLimit <- 0
+    minLimit <- 1
   }
   
   logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
@@ -36,7 +36,8 @@ rankingsChart <- function(playerName) {
                            "', size = 1) + 
     geom_point(data = yahooRanks %>% filter(Player == playerName), aes(x = Date, y = YRank), colour = '", unique(yahooRanks %>% filter(Player == playerName) %>% select(Secondary))[1],
                            "', size = 3) +
-    scale_y_reverse(lim = c(maxLimit,minLimit)) +
+    scale_y_reverse(lim = c(200,0)) +
+    coord_cartesian(ylim = c(maxLimit, minLimit)) +
     ylab('Ranking\n') + theme_bw() + theme(legend.position = 'none')")))
   
   
