@@ -11,7 +11,7 @@ shinyUI(fluidPage(
     tabPanel("Main",
              sidebarPanel(
                style="max-width:225px", 
-               sliderInput("num", "Number to display:", min=1, max=30, value=12),
+               # sliderInput("num", "Number to display:", min=1, max=30, value=12),
                selectInput("pos", "Position:", c("ALL","QB","RB","WR","TE")),
                selectInput("player", "Player", c("All",draftdata$Player), multiple=FALSE, selectize=TRUE, selected="All"),
                # actionButton("myteam", label="My Team"),

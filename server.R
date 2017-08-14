@@ -26,7 +26,8 @@ shinyServer(function(input, output, clientData, session) {
         subset(temp, temp$Player==input$player)
       }
       else {
-        temp[c(1:input$num),]
+        # temp[c(1:input$num),]
+        temp
       }
     })
     playerSet <- reactive({
