@@ -247,7 +247,7 @@ shinyServer(function(input, output, clientData, session) {
         matrix$TE[i] <- t %>% filter(Pos == "TE") %>% nrow()
       }
       t(matrix)
-    }, include.colnames = F)
+    }, include.colnames = F, include.rownames = T)
     
     output$pic <- renderUI({
       if(input$player != "All") {
