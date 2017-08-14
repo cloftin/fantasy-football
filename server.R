@@ -233,9 +233,9 @@ shinyServer(function(input, output, clientData, session) {
       
       temp <- drafted
       temp$Pos <- substr(temp$Pos, 1, 2)
-      matrix <- data.frame(matrix(ncol = 5, nrow = as.numeric(input$numOfTeams)))
-      colnames(matrix) <- c("Team", "QB", "RB", "WR", "TE")
-      matrix$Team <- c(1:input$numOfTeams)
+      matrix <- data.frame(matrix(ncol = 4, nrow = as.numeric(input$numOfTeams)))
+      colnames(matrix) <- c("QB", "RB", "WR", "TE")
+      # matrix$Team <- c(1:input$numOfTeams)
       for(i in 1:input$numOfTeams) {
         round <- (nrow(temp) %/% as.numeric(input$numOfTeams)) + 1
         picks <- sort(c(seq(i, as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2), 
@@ -246,8 +246,11 @@ shinyServer(function(input, output, clientData, session) {
         matrix$WR[i] <- t %>% filter(Pos == "WR") %>% nrow()
         matrix$TE[i] <- t %>% filter(Pos == "TE") %>% nrow()
       }
+      rownames(matrix) <- c("Brian", "Bryan", "John", "Me", "Steven", "Ben",
+                            "Dan", "Camen", "Kyle", "Raul", "Chip", "Ross")
       t(matrix)
-    }, include.colnames = F, include.rownames = T)
+
+    }, include.colnames = T, include.rownames = T)
     
     output$pic <- renderUI({
       if(input$player != "All") {
