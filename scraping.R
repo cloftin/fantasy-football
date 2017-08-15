@@ -27,6 +27,9 @@ getYahooRankings <- function() {
   }
   w <- which(yahoorankings$Player == "Odell Beckham")
   yahoorankings$Player[w] <- "Odell Beckham Jr."
+  yahoorankings$Player[yahoorankings$Player == "Jay. Ajayi"] <- "Jay Ajayi"
+  yahoorankings$Player[yahoorankings$Player == "Wilie Snead"] <- "Willie Snead"
+  yahoorankings$Player[yahoorankings$Player == "Rob Kelley"] <- "Robert Kelley"
   return(yahoorankings)
 }
 
