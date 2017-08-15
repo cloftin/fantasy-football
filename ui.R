@@ -16,6 +16,9 @@ names(teamNumbers) = c("Brian", "Bryan", "John", "Me", "Steven", "Ben",
 dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
               dashboardSidebar(disable = TRUE),
               body = dashboardBody(
+                tags$head(
+                  tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+                ),
                 tabBox(width = 12,
                        tabPanel("Main",
                                 br(),
@@ -26,7 +29,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                collapsible = T, width = 12,
                                                selectInput("pos", "Position:", c("ALL","QB","RB","WR","TE")),
                                                selectInput("player", "Player", c("All",draftdata$Player), multiple=FALSE, selectize=TRUE, selected="All"),
-                                               actionButton("myteam", label="My Team"),
+                                               # actionButton("myteam", label="My Team"),
                                                actionButton("draft", label="Drafted"),
                                                br(),br(),
                                                selectInput("numOfTeams", "Number of Teams", c(8, 10, 12, 14), selected = 12),
