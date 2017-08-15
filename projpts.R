@@ -1,6 +1,9 @@
 source("scraping.R")
 
-projpts <- function(x,passyds, passtds, ints, rushyds, rushtds, recs, recyds, rectds, twopts, fumbles, numofqb, numofrb, numofwr, numofte) {
+projpts <- function(x,
+                    passyds = 50, passtds = 5, ints = -2, rushyds = 20, rushtds = 6, recs = 0.5,
+                    recyds = 20, rectds = 6, twopts = 2, fumbles = -1, 
+                    numofqb = 17, numofrb = 39, numofwr = 48, numofte = 13) {
   x <- as.data.frame(x)
   toreturn <- as.data.frame(matrix(ncol=4,nrow=nrow(x)))
   toreturn[,1] <- x[,1]
@@ -43,7 +46,7 @@ projpts <- function(x,passyds, passtds, ints, rushyds, rushtds, recs, recyds, re
   colnames(toreturn) = c("Player","Pos","Team","Points","VOR","Rank","PosRank")
   temp <- toreturn
   toreturn <- NULL
-  toreturn <- merge(temp,yahoorankings)
+  toreturn <- merge(temp,yahoorankings, all.x = T)
   toreturn <- toreturn[order(-toreturn[,5]),]
   toreturn$YRank[which(is.na(toreturn$YRank))] <- 0
   toreturn$VOY <- toreturn$YRank - toreturn$Rank

@@ -1,0 +1,14 @@
+passyds = 50
+passtds = 5
+ints = -2
+rushyds = 20
+rushtds = 6
+recs = 0.5
+recyds = 20
+rectds = 6
+twopts = 2
+fumbles = -1
+numofqb = 17
+numofrb = 39
+numofwr = 48
+numofte = 13
