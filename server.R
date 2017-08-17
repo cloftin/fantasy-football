@@ -87,9 +87,16 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     output$currentPick <- renderValueBox({
+      if((nrow(drafted) + 1) %in% picks()) {
+        boxColor = "red"
+      } else if ((nrow(drafted) + 1) %in% (picks() - 1)) {
+        boxColor = "yellow"
+      } else {
+        boxColor = "green"
+      }
       valueBox(
         (nrow(drafted) + 1), "Current Pick", icon = icon("ok", lib = "glyphicon"),
-        color = "green"
+        color = boxColor
       )
     })
     
