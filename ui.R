@@ -57,6 +57,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   ), column(6,
                                             fluidRow(
                                               valueBoxOutput("currentPick"),
+                                              valueBoxOutput("myNextPick"),
                                               h2(textOutput("name")),
                                               h3(textOutput("position")),
                                               uiOutput("rankingsChart"),

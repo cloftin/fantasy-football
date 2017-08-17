@@ -80,7 +80,7 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     output$myteam <- renderUI({
-      if(nrow(myTeamFormatting()) > 0) {
+      if(nrow(myTeamFormatting()) > 0 && input$player == "All") {
         box(title = "My Team", width = 9,
             renderTable(myTeamFormatting()))
       }
@@ -92,7 +92,18 @@ shinyServer(function(input, output, clientData, session) {
         color = "green"
       )
     })
+    
+    output$myNextPick <- renderValueBox({
+      valueBox(
+        picks()[min(which(picks() > (nrow(drafted) + 1)))], "My Next Pick", icon = icon("ok", lib = "glyphicon"),
+        color = "green"
+      )
+    })
 
+    picks <- reactive({
+      sort(c(seq(as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2), 
+                      seq((as.numeric(input$numOfTeams)*2 + 1) - as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2)))
+    })
     
     myTeam <- reactive({
       temp <- drafted
