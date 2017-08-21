@@ -290,21 +290,19 @@ shinyServer(function(input, output, clientData, session) {
     
     
     output$qbPointsChart <- renderPlot({
-      print("asdf")
-      print("asdf")
-      points_by_position_chart("QB", draftdata %>% filter(YRank != 0))
+      points_by_position_chart("QB", draftdata %>% filter(YRank != 0), input$numofqb)
     })
     
     output$rbPointsChart <- renderPlot({
-      points_by_position_chart("RB", draftdata %>% filter(YRank != 0))
+      points_by_position_chart("RB", draftdata %>% filter(YRank != 0), input$numofrb)
     })
     
     output$wrPointsChart <- renderPlot({
-      points_by_position_chart("WR", draftdata %>% filter(YRank != 0))
+      points_by_position_chart("WR", draftdata %>% filter(YRank != 0), input$numofwr)
     })
     
     output$tePointsChart <- renderPlot({
-      points_by_position_chart("TE", draftdata %>% filter(YRank != 0))
+      points_by_position_chart("TE", draftdata %>% filter(YRank != 0), input$numofte)
     })
     
     
