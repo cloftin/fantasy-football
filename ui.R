@@ -38,20 +38,20 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                          fluidRow(
                                            box(title = "Scoring", solidHeader = T, status = "success",
                                                collapsible = TRUE, collapsed = T, width = 12,
-                                               numericInput("passyds","Passing Yards", 50),
+                                               numericInput("passyds","Passing Yards", 25),
                                                numericInput("passtds", "Passing TDs", 5),
                                                numericInput("ints", "Interceptions", -2),
-                                               numericInput("rushyds", "Rushing Yards", 20),
+                                               numericInput("rushyds", "Rushing Yards", 10),
                                                numericInput("rushtds", "Rushing TDs", 6),
                                                numericInput("recs", "Receptions", .5),
-                                               numericInput("recyds", "Receiving Yards", 20),
+                                               numericInput("recyds", "Receiving Yards", 10),
                                                numericInput("rectds", "Receiving TDs", 6),
                                                numericInput("twopts", "Two points", 2),
                                                numericInput("fumbles", "Fumbles", -2),
-                                               numericInput("numofqb", "Number of QBs taken in first 10 rounds", 17),
-                                               numericInput("numofrb", "Number of RBs taken in first 10 rounds", 39),
-                                               numericInput("numofwr", "Number of WRs taken in first 10 rounds", 48),
-                                               numericInput("numofte", "Number of TEs taken in first 10 rounds", 13)
+                                               numericInput("numofqb", "Number of QBs taken in first 10 rounds", 12),
+                                               numericInput("numofrb", "Number of RBs taken in first 10 rounds", 24),
+                                               numericInput("numofwr", "Number of WRs taken in first 10 rounds", 36),
+                                               numericInput("numofte", "Number of TEs taken in first 10 rounds", 12)
                                            )
                                          )
                                   ), column(6,

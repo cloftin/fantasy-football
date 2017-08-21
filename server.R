@@ -9,6 +9,7 @@ source("getRound.R")
 
 drafted <- data.frame()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
+# useAltURL <- F
 
 shinyServer(function(input, output, clientData, session) {
   

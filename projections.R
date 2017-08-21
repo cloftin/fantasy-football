@@ -18,10 +18,14 @@ projpts <- function(x,passyds, passtds, ints, rushyds, rushtds, recs, recyds, re
   wrs <- wrs[order(-wrs[,4]),]
   tes <- subset(toreturn, toreturn[,2]=="TE")
   tes <- tes[order(-tes[,4]),]
-  qbreplace = (qbs[numofqb+1,4] + qbs[numofqb-1,4])/2
-  rbreplace = (rbs[numofrb+1,4] + rbs[numofrb-1,4])/2
-  wrreplace = (wrs[numofwr+1,4] + wrs[numofwr-1,4])/2
-  tereplace = (tes[numofte+1,4] + tes[numofte-1,4])/2
+  # qbreplace = (qbs[numofqb+1,4] + qbs[numofqb-1,4])/2
+  # rbreplace = (rbs[numofrb+1,4] + rbs[numofrb-1,4])/2
+  # wrreplace = (wrs[numofwr+1,4] + wrs[numofwr-1,4])/2
+  # tereplace = (tes[numofte+1,4] + tes[numofte-1,4])/2
+  qbreplace <- qbs[numofqb + 1, 4]
+  rbreplace <- rbs[numofrb + 1, 4]
+  wrreplace <- wrs[numofwr + 1, 4]
+  tereplace <- tes[numofte + 1, 4]
   qbs[,5] <- qbs[,4]-qbreplace
   qbs <- qbs[order(-qbs[,4]),]
   qbs[,6] <- c(1:nrow(qbs))

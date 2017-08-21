@@ -5,8 +5,15 @@ getYahooRankings <- function() {
   options(stringsAsFactors = FALSE)
   # Base URL
   base.url = 'http://fantasyfootballimpact.com/special-features/yahoo-default-list-movement/'
+  # alt.url = "http://webcache.googleusercontent.com/search?q=cache:pZM5tJu8yQoJ:fantasyfootballimpact.com/special-features/yahoo-default-list-movement/+&cd=1&hl=en&ct=clnk&gl=us"
   
+  # if(!useAltURL) {
   yahoorankings <- as.data.frame(readHTMLTable(base.url)[1])
+  # }
+  # if(nrow(yahoorankings) == 0 || !exists("yahoorankings")) {
+  #   assign("useAltURL", T, envir = .GlobalEnv)
+  #   yahoorankings <- as.data.frame(readHTMLTable(alt.url)[1])
+  # }
   colnames(yahoorankings) <- gsub("tablepress.98.", "", colnames(yahoorankings))
   yahoorankings$Pos <- gsub("WRv", "WR", yahoorankings$Pos)
   yahoorankings$Pos <- gsub("TgE", "TE", yahoorankings$Pos)
