@@ -63,7 +63,8 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                               uiOutput("rankingsChart"),
                                               br(),
                                               uiOutput("myteam"),
-                                              DT::dataTableOutput("playerList")
+                                              DT::dataTableOutput("playerList"),
+                                              uiOutput("consistency")
                                             )
                                   )
                                 )

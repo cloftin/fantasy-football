@@ -7,6 +7,7 @@ source("projections.R")
 source("yahooRanksChart.R")
 source("getRound.R")
 source("points_by_position_chart.R")
+source("player_game_stats.R")
 
 drafted <- data.frame()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
@@ -72,6 +73,40 @@ shinyServer(function(input, output, clientData, session) {
       rownames = F,
       escape = F
     )
+    
+    
+    consistencyOutput <- reactive({
+      t <- get_consistency()
+      colnames(t) <- c("Player", "Pos", "GP", "Starts", "Top", "Pts/G", "StDev", "Start%", "Top%", "Cons.", "Metric")
+      t$GP <- as.integer(t$GP)
+      t$Starts <- as.integer(t$Starts)
+      t$Top <- as.integer(t$Top)
+      
+      t
+    })
+    
+    output$consistency <- renderUI({
+      # print("")
+      # print("asdf")
+      # t <- consistencyOutput()
+      # if(nrow(t) > 0 && input$player != "All") {
+      #   renderTable(
+      #     t
+      #   )
+      # }
+      if(input$player != "All") {
+        t <- consistencyOutput() %>% filter(Player == input$player)
+        box(title = "", width = 9,
+            renderTable(t))
+      }
+    })
+    
+    # output$consistency <- DT::renderDataTable(
+    #   consistencyOutput(),
+    #   options = list(pageLength = 25),
+    #   rownames = F,
+    #   escape = F
+    # )
     
     # output$currentPick <- renderText({
     #   nrow(drafted) + 1
