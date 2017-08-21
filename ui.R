@@ -92,6 +92,26 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                          )
                                   )
                                 )
+                       ),
+                       tabPanel("Points By Position",
+                                br(),
+                                fluidRow(
+                                  column(6,
+                                         plotOutput("qbPointsChart")
+                                  ),
+                                  column(6,
+                                         plotOutput("rbPointsChart")
+                                  )
+                                ),
+                                fluidRow(
+                                  column(6,
+                                         plotOutput("wrPointsChart")
+                                  ),
+                                  column(6,
+                                         plotOutput("tePointsChart")
+                                  )
+                                )
+                                
                        )
                 )
               )

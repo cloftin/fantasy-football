@@ -6,6 +6,7 @@ library(DT)
 source("projections.R")
 source("yahooRanksChart.R")
 source("getRound.R")
+source("points_by_position_chart.R")
 
 drafted <- data.frame()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
@@ -20,7 +21,7 @@ shinyServer(function(input, output, clientData, session) {
   observe({
     draftdata <- projpts(projections,input$passyds, input$passtds, input$ints, input$rushyds, input$rushtds, input$recs, input$recyds, input$rectds, input$twopts, input$fumbles, input$numofqb, input$numofrb, input$numofwr, input$numofte)
     draftdata$Pos <- paste(draftdata$Pos,"(",draftdata$PosRank,")", sep="")
-    draftdata$PosRank <- NULL
+    # draftdata$PosRank <- NULL
     datasetInput <- reactive({
       temp <- playerSet()
       if(input$player != "All") {
@@ -286,6 +287,27 @@ shinyServer(function(input, output, clientData, session) {
         plotOutput("p", width = "500")
       }
     })
+    
+    
+    output$qbPointsChart <- renderPlot({
+      print("asdf")
+      print("asdf")
+      points_by_position_chart("QB", draftdata %>% filter(YRank != 0))
+    })
+    
+    output$rbPointsChart <- renderPlot({
+      points_by_position_chart("RB", draftdata %>% filter(YRank != 0))
+    })
+    
+    output$wrPointsChart <- renderPlot({
+      points_by_position_chart("WR", draftdata %>% filter(YRank != 0))
+    })
+    
+    output$tePointsChart <- renderPlot({
+      points_by_position_chart("TE", draftdata %>% filter(YRank != 0))
+    })
+    
+    
     
     input$draft
     isolate({
