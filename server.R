@@ -20,7 +20,7 @@ shinyServer(function(input, output, clientData, session) {
   my_team <- data.frame()
   draftdata <- projections
   observe({
-    draftdata <- projpts(projections,input$passyds, input$passtds, input$ints, input$rushyds, input$rushtds, input$recs, input$recyds, input$rectds, input$twopts, input$fumbles, input$numofqb, input$numofrb, input$numofwr, input$numofte)
+    draftdata <- projpts(projections,input$passyds, input$passtds, input$ints, input$rushyds, input$rushtds, input$recs, input$recyds, input$rectds, input$twopts, input$fumbles, (input$numOfTeams * input$numofqb), (input$numOfTeams * input$numofrb), (input$numOfTeams * input$numofwr), (input$numOfTeams * input$numofte))
     draftdata$Pos <- paste(draftdata$Pos,"(",draftdata$PosRank,")", sep="")
     # draftdata$PosRank <- NULL
     datasetInput <- reactive({
@@ -84,8 +84,8 @@ shinyServer(function(input, output, clientData, session) {
       for(i in 6:ncol(t)) {
         t[,i] <- round(t[,i], 2)
       }
-      t$`Start%` <- t$`Start%` * 100
-      t$`Top%` <- t$`Top%` * 100
+      t[,8] <- t[,8] * 100
+      t[,9] <- t[,9] * 100
       t[order(-t$Metric),]
     })
     
@@ -347,19 +347,19 @@ shinyServer(function(input, output, clientData, session) {
     
     
     output$qbPointsChart <- renderPlot({
-      points_by_position_chart("QB", draftdata %>% filter(YRank != 0), input$numofqb)
+      points_by_position_chart("QB", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofqb)
     })
     
     output$rbPointsChart <- renderPlot({
-      points_by_position_chart("RB", draftdata %>% filter(YRank != 0), input$numofrb)
+      points_by_position_chart("RB", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofrb)
     })
     
     output$wrPointsChart <- renderPlot({
-      points_by_position_chart("WR", draftdata %>% filter(YRank != 0), input$numofwr)
+      points_by_position_chart("WR", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofwr)
     })
     
     output$tePointsChart <- renderPlot({
-      points_by_position_chart("TE", draftdata %>% filter(YRank != 0), input$numofte)
+      points_by_position_chart("TE", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofte)
     })
     
     

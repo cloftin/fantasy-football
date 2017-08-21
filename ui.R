@@ -32,7 +32,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                # actionButton("myteam", label="My Team"),
                                                actionButton("draft", label="Drafted"),
                                                br(),br(),
-                                               selectInput("numOfTeams", "Number of Teams", c(8, 10, 12, 14), selected = 12),
+                                               numericInput("numOfTeams", "Number of Teams", 12),
                                                selectInput("whichPick", "Which Pick", c(1:14), selected = 4)
                                            )),
                                          fluidRow(
@@ -48,10 +48,10 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                numericInput("rectds", "Receiving TDs", 6),
                                                numericInput("twopts", "Two points", 2),
                                                numericInput("fumbles", "Fumbles", -2),
-                                               numericInput("numofqb", "Number of QBs taken in first 10 rounds", 12),
-                                               numericInput("numofrb", "Number of RBs taken in first 10 rounds", 24),
-                                               numericInput("numofwr", "Number of WRs taken in first 10 rounds", 36),
-                                               numericInput("numofte", "Number of TEs taken in first 10 rounds", 12)
+                                               numericInput("numofqb", "Number of QBs started", 1),
+                                               numericInput("numofrb", "Number of RBs started", 2),
+                                               numericInput("numofwr", "Number of WRs started", 3),
+                                               numericInput("numofte", "Number of TEs started", 1)
                                            )
                                          )
                                   ), column(6,
