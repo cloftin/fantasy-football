@@ -77,13 +77,35 @@ shinyServer(function(input, output, clientData, session) {
     
     consistencyOutput <- reactive({
       t <- get_consistency()
-      colnames(t) <- c("Player", "Pos", "GP", "Starts", "Top", "Pts/G", "StDev", "Start%", "Top%", "Cons.", "Metric")
+      colnames(t) <- c("Player", "Pos", "GP", "Starts", "Top", "Pts/G", "StDev", "Start%", "Stud%", "Cons.", "Metric")
       t$GP <- as.integer(t$GP)
       t$Starts <- as.integer(t$Starts)
       t$Top <- as.integer(t$Top)
-      
+      for(i in 6:ncol(t)) {
+        t[,i] <- round(t[,i], 2)
+      }
+      t$`Start%` <- t$`Start%` * 100
+      t$`Top%` <- t$`Top%` * 100
+      t[order(-t$Metric),]
+    })
+    
+    consistencyTable <- reactive({
+      t <- consistencyOutput()
+      if(input$consPlayer != "All") {
+        t <- t %>% filter(Player == input$consPlayer)
+      }
+      if(input$consPos != "All") {
+        t <- t %>% filter(Pos == input$consPos)
+      }
       t
     })
+    
+    output$allConsistency <- DT::renderDataTable(
+      consistencyTable(),
+      options = list(pageLength = 25),
+      rownames = F,
+      escape = F
+    )
     
     output$consistency <- renderUI({
       # print("")
@@ -143,10 +165,10 @@ shinyServer(function(input, output, clientData, session) {
         color = "green"
       )
     })
-
+    
     picks <- reactive({
       sort(c(seq(as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2), 
-                      seq((as.numeric(input$numOfTeams)*2 + 1) - as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2)))
+             seq((as.numeric(input$numOfTeams)*2 + 1) - as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2)))
     })
     
     myTeam <- reactive({
@@ -348,6 +370,7 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     updateSelectInput(session, "player", choices = c("All", playerSet()$Player), selected="All")
+    updateSelectInput(session, "consPlayer", choices = c("All", playerSet()$Player), selected="All")
     
   })
 })

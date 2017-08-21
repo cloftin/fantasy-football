@@ -128,7 +128,7 @@ get_consistency <- function() {
   
   b$cons <- b$wk_sd / b$pts_g
   # b$met <- log(((1/b$cons) ^ (20*b$pts_g)) * (100/(1-b$top_pct)) * (1/(1.2-b$start_pct)))
-  b$met <- log((30*b$pts_g + (20/(1-b$top_pct)) + (1/1.2-b$start_pct)))# / b$cons)
+  b$met <- (30*b$pts_g + (20/(1-b$top_pct)) + (1/1.2-b$start_pct))# / b$cons)
   
   return(b) 
   

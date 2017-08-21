@@ -113,6 +113,25 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   )
                                 )
                                 
+                       ),
+                       tabPanel("Consistency",
+                                br(),
+                                fluidRow(
+                                  column(3,
+                                         box(title = "Consistency Filter", solidHeader = T, status = "success",
+                                             collapsible = F, width = 12,
+                                             selectInput("consPos", "Position:", c("All","QB","RB","WR","TE")),
+                                             selectInput("consPlayer", "Player", c("All",draftdata$Player), multiple=FALSE, selectize=TRUE, selected="All")
+                                         )
+                                  ),
+                                  column(9,
+                                         fluidRow(
+                                           column(11,
+                                                  DT::dataTableOutput("allConsistency")
+                                           )
+                                         )
+                                  )
+                                )
                        )
                 )
               )
