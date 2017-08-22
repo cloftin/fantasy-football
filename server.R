@@ -11,6 +11,7 @@ source("player_game_stats.R")
 
 drafted <- data.frame()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
+consistency <- get_consistency()
 # useAltURL <- F
 
 shinyServer(function(input, output, clientData, session) {
@@ -76,7 +77,7 @@ shinyServer(function(input, output, clientData, session) {
     
     
     consistencyOutput <- reactive({
-      t <- get_consistency()
+      t <- consistency
       colnames(t) <- c("Player", "Pos", "GP", "Starts", "Top", "Pts/G", "StDev", "Start%", "Stud%", "Cons.", "Metric")
       t$GP <- as.integer(t$GP)
       t$Starts <- as.integer(t$Starts)
