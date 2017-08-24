@@ -79,6 +79,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   ),
                                   column(9,
                                          box(title = "Team", solidHeader = T, status = "success", width = 6,
+                                             h3("StartersVOR"),
                                              tableOutput("teamViewer")
                                          )
                                   )

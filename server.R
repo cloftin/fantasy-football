@@ -8,6 +8,7 @@ source("yahooRanksChart.R")
 source("getRound.R")
 source("points_by_position_chart.R")
 source("player_game_stats.R")
+source("get_team_players.R")
 
 drafted <- data.frame()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
@@ -172,147 +173,16 @@ shinyServer(function(input, output, clientData, session) {
              seq((as.numeric(input$numOfTeams)*2 + 1) - as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2)))
     })
     
-    myTeam <- reactive({
-      temp <- drafted
-      round <- (nrow(temp) %/% as.numeric(input$numOfTeams)) + 1
-      picks <- sort(c(seq(as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2), 
-                      seq((as.numeric(input$numOfTeams)*2 + 1) - as.numeric(input$whichPick), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2)))
-      temp <- temp[picks[which(picks <= nrow(temp))],]
-      temp$Pos <- substr(temp$Pos, 1, 2)
-      temp
-    })
-    
     myTeamFormatting <- reactive({
-      temp <- myTeam()
-      qbs <- subset(temp, Pos=="QB")
-      rbs <- subset(temp, Pos=="RB")
-      wrs <- subset(temp, Pos=="WR")
-      tes <- subset(temp, Pos=="TE")
-      starters <- data.frame()
-      bench <- data.frame()
       
-      if(nrow(qbs) != 0) {
-        starters <- qbs[1,]
-        if(nrow(qbs) > 1) {
-          bench <- qbs[c(2:nrow(qbs)),]
-        }
-      }
-      
-      if(nrow(rbs) != 0) {
-        if(nrow(rbs) == 1) {
-          starters <- rbind(starters, rbs[1,])
-        } else if(nrow(rbs) == 2) {
-          starters <- rbind(starters, rbs[c(1:2),])
-        } else {
-          starters <- rbind(starters, rbs[c(1:2),])
-          bench <- rbind(bench, rbs[c(3:nrow(rbs)),])
-        }
-      }
-      
-      if(nrow(wrs) != 0) {
-        if(nrow(wrs) == 1) {
-          starters <- rbind(starters, wrs[1,])
-        } else if(nrow(wrs) == 2) {
-          starters <- rbind(starters, wrs[c(1:2),])
-        } else if(nrow(wrs) == 3) {
-          starters <- rbind(starters, wrs[c(1:3),])
-        } else {
-          starters <- rbind(starters, wrs[c(1:3),])
-          bench <- rbind(bench, wrs[c(4:nrow(wrs)),])
-        }
-      }
-      
-      if(nrow(tes) != 0) {
-        starters <- rbind(starters, tes[1,])
-        if(nrow(tes) > 1) {
-          bench <- rbind(bench, tes[c(2:nrow(tes)),])
-        }
-      }
-      #       starters <- starters[, c(3,1,4)]
-      #       bench <- bench[, c(3,1,4)]
-      if(nrow(bench) > 0) {
-        flex <- subset(bench, bench$Pos != "QB")
-        flex <- flex[1,]
-        flex$Pos <- "W/R/T"
-        bench <- bench[-1,]
-        starters <- rbind(starters, flex)
-      }
-      
-      if(nrow(starters) > 0) {
-        output <- rbind(starters, c("--", "---------", "---"), bench)
-        output <- output[,c(2,1,3)]
-      } else {
-        output <- data.frame()
-      }
-      output
+      get_team_players(drafted, input$whichPick, input$numOfTeams)
+    
     })
     
     output$teamViewer <- renderTable({
-      temp <- drafted
-      round <- (nrow(temp) %/% as.numeric(input$numOfTeams)) + 1
-      picks <- sort(c(seq(as.numeric(input$teamToView), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2), 
-                      seq((as.numeric(input$numOfTeams)*2 + 1) - as.numeric(input$teamToView), as.numeric(input$numOfTeams) * 16, by = as.numeric(input$numOfTeams) * 2)))
-      temp <- temp[picks[which(picks <= nrow(temp))],]
-      temp$Pos <- substr(temp$Pos, 1, 2)
-      qbs <- subset(temp, Pos=="QB")
-      rbs <- subset(temp, Pos=="RB")
-      wrs <- subset(temp, Pos=="WR")
-      tes <- subset(temp, Pos=="TE")
-      starters <- data.frame()
-      bench <- data.frame()
       
-      if(nrow(qbs) != 0) {
-        starters <- qbs[1,]
-        if(nrow(qbs) > 1) {
-          bench <- qbs[c(2:nrow(qbs)),]
-        }
-      }
+      get_team_players(drafted, input$teamToView, input$numOfTeams)
       
-      if(nrow(rbs) != 0) {
-        if(nrow(rbs) == 1) {
-          starters <- rbind(starters, rbs[1,])
-        } else if(nrow(rbs) == 2) {
-          starters <- rbind(starters, rbs[c(1:2),])
-        } else {
-          starters <- rbind(starters, rbs[c(1:2),])
-          bench <- rbind(bench, rbs[c(3:nrow(rbs)),])
-        }
-      }
-      
-      if(nrow(wrs) != 0) {
-        if(nrow(wrs) == 1) {
-          starters <- rbind(starters, wrs[1,])
-        } else if(nrow(wrs) == 2) {
-          starters <- rbind(starters, wrs[c(1:2),])
-        } else if(nrow(wrs) == 3) {
-          starters <- rbind(starters, wrs[c(1:3),])
-        } else {
-          starters <- rbind(starters, wrs[c(1:3),])
-          bench <- rbind(bench, wrs[c(4:nrow(wrs)),])
-        }
-      }
-      
-      if(nrow(tes) != 0) {
-        starters <- rbind(starters, tes[1,])
-        if(nrow(tes) > 1) {
-          bench <- rbind(bench, tes[c(2:nrow(tes)),])
-        }
-      }
-      
-      if(nrow(bench) > 0) {
-        flex <- subset(bench, bench$Pos != "QB")
-        flex <- flex[1,]
-        flex$Pos <- "W/R/T"
-        bench <- bench[-1,]
-        starters <- rbind(starters, flex)
-      }
-      
-      if(nrow(starters) > 0) {
-        output <- rbind(starters, c("--", "---------", "---"), bench)
-        output <- output[,c(2,1,3)]
-      } else {
-        output <- data.frame()
-      }
     }, include.rownames=FALSE)
     
     output$matrixViewer <- renderTable({
