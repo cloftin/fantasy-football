@@ -1,7 +1,7 @@
-get_team_players <- function(dat, teamToView, numofTeams) {
+get_team_players <- function(dat, teamToView, numOfTeams, numofqb, numofrb, numofwr, numofte, numoffl) {
   
-  picks <- sort(c(seq(as.numeric(teamToView), as.numeric(numofTeams) * 16, by = as.numeric(numofTeams) * 2), 
-                  seq((as.numeric(numofTeams)*2 + 1) - as.numeric(teamToView), as.numeric(numofTeams) * 16, by = as.numeric(numofTeams) * 2)))
+  picks <- sort(c(seq(as.numeric(teamToView), as.numeric(numOfTeams) * 16, by = as.numeric(numOfTeams) * 2), 
+                  seq((as.numeric(numOfTeams)*2 + 1) - as.numeric(teamToView), as.numeric(numOfTeams) * 16, by = as.numeric(numOfTeams) * 2)))
   dat <- dat[picks[which(picks <= nrow(dat))],]
   dat$Pos <- substr(dat$Pos, 1, 2)
   qbs <- subset(dat, Pos=="QB")
@@ -12,48 +12,38 @@ get_team_players <- function(dat, teamToView, numofTeams) {
   bench <- data.frame()
   
   if(nrow(qbs) != 0) {
-    starters <- qbs[1,]
-    if(nrow(qbs) > 1) {
-      bench <- qbs[c(2:nrow(qbs)),]
+    starters <- rbind(starters, qbs[c(1:numofqb),])
+    if(nrow(qbs) > numofqb) {
+      bench <- rbind(bench, qbs[c((numofqb + 1):nrow(qbs)),])
     }
   }
   
   if(nrow(rbs) != 0) {
-    if(nrow(rbs) == 1) {
-      starters <- rbind(starters, rbs[1,])
-    } else if(nrow(rbs) == 2) {
-      starters <- rbind(starters, rbs[c(1:2),])
-    } else {
-      starters <- rbind(starters, rbs[c(1:2),])
-      bench <- rbind(bench, rbs[c(3:nrow(rbs)),])
+    starters <- rbind(starters, rbs[c(1:numofrb),])
+    if(nrow(rbs) > numofrb) {
+      bench <- rbind(bench, rbs[c((numofrb + 1):nrow(rbs)),])
     }
   }
   
   if(nrow(wrs) != 0) {
-    if(nrow(wrs) == 1) {
-      starters <- rbind(starters, wrs[1,])
-    } else if(nrow(wrs) == 2) {
-      starters <- rbind(starters, wrs[c(1:2),])
-    } else if(nrow(wrs) == 3) {
-      starters <- rbind(starters, wrs[c(1:3),])
-    } else {
-      starters <- rbind(starters, wrs[c(1:3),])
-      bench <- rbind(bench, wrs[c(4:nrow(wrs)),])
+    starters <- rbind(starters, wrs[c(1:numofwr),])
+    if(nrow(wrs) > numofwr) {
+      bench <- rbind(bench, wrs[c((numofwr + 1):nrow(wrs)),])
     }
   }
   
   if(nrow(tes) != 0) {
-    starters <- rbind(starters, tes[1,])
-    if(nrow(tes) > 1) {
-      bench <- rbind(bench, tes[c(2:nrow(tes)),])
+    starters <- rbind(starters, tes[c(1:numofte),])
+    if(nrow(tes) > numofte) {
+      bench <- rbind(bench, tes[c((numofte + 1):nrow(tes)),])
     }
   }
   
   if(nrow(bench) > 0) {
     flex <- subset(bench, bench$Pos != "QB")
-    flex <- flex[1,]
+    flex <- flex[c(1:numoffl),]
     flex$Pos <- "W/R/T"
-    bench <- bench[-1,]
+    bench <- bench[-(bench$Player %in% flex$Player),]
     starters <- rbind(starters, flex)
   }
   
@@ -63,6 +53,12 @@ get_team_players <- function(dat, teamToView, numofTeams) {
     output <- output %>% select(Pos, Player, Team, Points, VOR)
   }
   
-  return(output)
+  if(nrow(output) > 0) {
+    output <- output[complete.cases(output$Player),]
+  }
+  
+  startervor <- sum(starters$VOR, na.rm = T)
+  
+  return(list(output, startervor))
   
 }

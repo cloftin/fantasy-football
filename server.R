@@ -142,7 +142,10 @@ shinyServer(function(input, output, clientData, session) {
     
     output$myteam <- renderUI({
       if(nrow(myTeamFormatting()) > 0 && input$player == "All") {
-        box(title = "My Team", width = 9,
+        box(title = paste0("My Team: ", get_team_players(drafted, input$whichPick, input$numOfTeams, 
+                                                       input$numofqb, input$numofrb, input$numofwr, input$numofte, 
+                                                       input$numoffl)[[2]]),
+            width = 9,
             renderTable(myTeamFormatting()))
       }
     })
@@ -174,16 +177,23 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     myTeamFormatting <- reactive({
+      if(nrow(drafted) >= input$whichPick) {
+        get_team_players(drafted, input$whichPick, input$numOfTeams, input$numofqb, input$numofrb, input$numofwr, input$numofte, input$numoffl)[[1]]
+      } else {
+        data.frame()
+      }
       
-      get_team_players(drafted, input$whichPick, input$numOfTeams)
-    
     })
     
     output$teamViewer <- renderTable({
       
-      get_team_players(drafted, input$teamToView, input$numOfTeams)
+      get_team_players(drafted, input$teamToView, input$numOfTeams, input$numofqb, input$numofrb, input$numofwr, input$numofte, input$numoffl)[[1]]
       
     }, include.rownames=FALSE)
+    
+    output$StartersVOR <- renderText({
+      get_team_players(drafted, input$teamToView, input$numOfTeams, input$numofqb, input$numofrb, input$numofwr, input$numofte, input$numoffl)[[2]]
+    })
     
     output$matrixViewer <- renderTable({
       

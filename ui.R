@@ -51,7 +51,8 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                numericInput("numofqb", "Number of QBs started", 1),
                                                numericInput("numofrb", "Number of RBs started", 2),
                                                numericInput("numofwr", "Number of WRs started", 3),
-                                               numericInput("numofte", "Number of TEs started", 1)
+                                               numericInput("numofte", "Number of TEs started", 1),
+                                               numericInput("numoffl", "Number of Flex spots", 1)
                                            )
                                          )
                                   ), column(6,
@@ -79,7 +80,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   ),
                                   column(9,
                                          box(title = "Team", solidHeader = T, status = "success", width = 6,
-                                             h3("StartersVOR"),
+                                             h3(textOutput("StartersVOR")),
                                              tableOutput("teamViewer")
                                          )
                                   )
