@@ -37,6 +37,7 @@ getYahooRankings <- function() {
   yahoorankings$Player[yahoorankings$Player == "Jay. Ajayi"] <- "Jay Ajayi"
   yahoorankings$Player[yahoorankings$Player == "Wilie Snead"] <- "Willie Snead"
   yahoorankings$Player[yahoorankings$Player == "Rob Kelley"] <- "Robert Kelley"
+  yahoorankings[is.na(yahoorankings)] <- -999
   return(yahoorankings)
 }
 
