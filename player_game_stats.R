@@ -133,6 +133,15 @@ get_consistency <- function() {
   return(b) 
   
 }
+
+get_gamelogs <- function(player) {
+  dat <- read.csv(file = "gamelogs.csv", header = T, stringsAsFactors = F)
+  dat$Player[dat$Player == "Odell Beckham"] <- "Odell Beckham Jr."
+  for(i in 1:nrow(dat)) {
+    dat$pts[i] <- weekly_fantasy_points(dat[i,])
+  }
+  return(dat)
+}
 # qbs <- b %>% filter(Pos == "QB")
 # qbs <- qbs[order(-qbs$met),]
 # qbs %>% filter(games >= 10) %>% head(12)

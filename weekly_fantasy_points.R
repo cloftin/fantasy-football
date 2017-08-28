@@ -21,14 +21,16 @@ weekly_fantasy_points <- function(week) {
     (week$kick_ret_yds * ret_yds) + (week$kick_ret_td * ret_tds) + (week$punt_ret_yds * ret_yds) +
     (week$punt_ret_td * ret_tds)
   
-  if(length(which(week$pass_yds >= pass_bonus$condition)) > 0) {
-    pts <- pts + pass_bonus$pts[max(which(week$pass_yds >= pass_bonus$condition))]
-  }
-  if(length(which(week$rush_yds >= rush_bonus$condition)) > 0) {
-    pts <- pts + rush_bonus$pts[max(which(week$rush_yds >= rush_bonus$condition))]
-  }
-  if(length(which(week$rec_yds >= rec_bonus$condition)) > 0) {
-    pts <- pts + rec_bonus$pts[max(which(week$rec_yds >= rec_bonus$condition))]
+  for(i in 1:nrow(week)) {
+    if(length(which(week$pass_yds[i] >= pass_bonus$condition)) > 0) {
+      pts[i] <- pts[i] + pass_bonus$pts[max(which(week$pass_yds[i] >= pass_bonus$condition))]
+    }
+    if(length(which(week$rush_yds[i] >= rush_bonus$condition)) > 0) {
+      pts[i] <- pts[i] + rush_bonus$pts[max(which(week$rush_yds[i] >= rush_bonus$condition))]
+    }
+    if(length(which(week$rec_yds[i] >= rec_bonus$condition)) > 0) {
+      pts[i] <- pts[i] + rec_bonus$pts[max(which(week$rec_yds[i] >= rec_bonus$condition))]
+    }
   }
   return(pts)
   

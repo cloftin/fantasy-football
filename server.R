@@ -8,10 +8,13 @@ source("yahooRanksChart.R")
 source("getRound.R")
 source("points_by_position_chart.R")
 source("player_game_stats.R")
+source("weekly_fantasy_points.R")
 
 drafted <- data.frame()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
 consistency <- get_consistency()
+gamelogs <- read.csv(file = "gamelogs.csv", header = T, stringsAsFactors = F)
+gamelogs$Player[gamelogs$Player == "Odell Beckham"] <- "Odell Beckham Jr."
 # useAltURL <- F
 
 shinyServer(function(input, output, clientData, session) {
@@ -112,36 +115,59 @@ shinyServer(function(input, output, clientData, session) {
     )
     
     output$consistency <- renderUI({
-      # print("")
-      # print("asdf")
-      # t <- consistencyOutput()
-      # if(nrow(t) > 0 && input$player != "All") {
-      #   renderTable(
-      #     t
-      #   )
-      # }
+
       if(input$player != "All") {
         t <- consistencyOutput() %>% filter(Player == input$player)
         box(title = "", width = 9,
             renderTable(t))
       }
+      
     })
     
-    # output$consistency <- DT::renderDataTable(
-    #   consistencyOutput(),
-    #   options = list(pageLength = 25),
-    #   rownames = F,
-    #   escape = F
-    # )
     
-    # output$currentPick <- renderText({
-    #   nrow(drafted) + 1
+    # output$aa <- renderTable({
+    #   myTeamFormatting()
     # })
+    # 
     
-    output$aa <- renderTable({
-      myTeamFormatting()
+    playerGamelog <- reactive({
+      t <- gamelogs %>% filter(Player == input$gamelogPlayer)
+      t$pts <- weekly_fantasy_points(t)
+      if(t$Pos[1] == "QB") {
+        t <- t %>% select(Player, Week, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts)
+        colnames(t) <- c("Player", "Week", "Attempts", "Comps", "PassYds", "PassTDs", "INTs", "Rushes", "RushYds", "RushTDs", "FPts")
+      } else if(t$Pos[1] == "RB") {
+        t <- t %>% select(Player, Week, rush_att, rush_yds, rush_td, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
+        colnames(t) <- c("Player", "Week", "Rushes", "RushYds", "RushTDs", "Targets", "Recs", "RecYds", "RecTDs",
+                         "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
+      } else if(t$Pos[1] == "WR") {
+        t <- t %>% select(Player, Week, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
+        colnames(t) <- c("Player", "Week", "Targets", "Recs", "RecYds", "RecTDs",
+                         "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
+      } else if(t$Pos[1] == "TE") {
+        t <- t %>% select(Player, Week, targets, rec, rec_yds, rec_td, pts)
+        colnames(t) <- c("Player", "Week", "Targets", "Recs", "RecYds", "RecTDs", "FPts")
+      }
+      w <- which(colnames(t) %in% c("KRetYds", "KRetTDs", "PRetYds", "PRetTDs"))
+      ww <- which(cbind(colSums(t[,c(3:ncol(t))])) == 0) + 2
+      w <- ww[ww %in% w]
+      if(length(w) > 0) {
+        t <- t[,-w]
+      }
+      totals <- as.data.frame(matrix(ncol = ncol(t), nrow = 1))
+      colnames(totals) <- colnames(t)
+      totals$Player <- t$Player[1]
+      totals$Week <- "Season"
+      for(i in 3:ncol(t)) {
+        totals[,i] <- sum(t[,i])
+      }
+      t <- rbind(t, totals)
+      t
     })
     
+    output$gamelog <- renderTable({
+      playerGamelog()
+    })
     output$myteam <- renderUI({
       if(nrow(myTeamFormatting()) > 0 && input$player == "All") {
         box(title = "My Team", width = 9,
@@ -366,6 +392,9 @@ shinyServer(function(input, output, clientData, session) {
       points_by_position_chart("TE", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofte)
     })
     
+    output$allPointsChart <- renderPlot({
+      points_by_position_chart("All", draftdata %>% filter(YRank != 0), input$numOfTeams)
+    })
     
     
     input$draft
@@ -375,6 +404,7 @@ shinyServer(function(input, output, clientData, session) {
     
     updateSelectInput(session, "player", choices = c("All", playerSet()$Player), selected="All")
     updateSelectInput(session, "consPlayer", choices = c("All", playerSet()$Player), selected="All")
+    updateSelectInput(session, "gamelogPlayer", choices = playerSet()$Player)
     
   })
 })

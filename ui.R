@@ -113,6 +113,11 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   column(6,
                                          plotOutput("tePointsChart")
                                   )
+                                ),
+                                fluidRow(
+                                  column(6,
+                                         plotOutput("allPointsChart")
+                                  )
                                 )
                                 
                        ),
@@ -130,6 +135,24 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                          fluidRow(
                                            column(11,
                                                   DT::dataTableOutput("allConsistency")
+                                           )
+                                         )
+                                  )
+                                )
+                       ),
+                       tabPanel("Gamelogs", 
+                                br(),
+                                fluidRow(
+                                  column(3,
+                                         box(title = "Gamelogs", solidHeader = T, status = "success",
+                                             collapsible = F, width = 12,
+                                             selectInput("gamelogPlayer", "Player:", draftdata$Player, multiple = F, selectize = T)
+                                         )
+                                  ),
+                                  column(9,
+                                         fluidRow(
+                                           column(11,
+                                                  tableOutput("gamelog")
                                            )
                                          )
                                   )
