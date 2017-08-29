@@ -8,8 +8,8 @@ points_by_position_chart <- function(position, dat, numofteams, numofpos = 0) {
   }
   
   if(position == "All") {
-    g <- ggplot(data = dat, aes(x = PosRank, y = Points, aes(colour = factor(Pos)))) + geom_path() + geom_point() + theme_bw() +
-      ggtitle(position) + theme(legend.position="none")
+    g <- ggplot(data = dat, aes(x = PosRank, y = Points, colour = factor(substr(Pos, 1, 2)))) + geom_path() + geom_point() + theme_bw() +
+      ggtitle(position) + scale_colour_discrete(name = "Position")
   } else {
     g <- ggplot(data = dat, aes(x = PosRank, y = Points)) + geom_path() + geom_point() + theme_bw() +
       ggtitle(position)
