@@ -2,17 +2,19 @@ library(shiny)
 library(tidyr)
 library(ggplot2)
 library(DT)
+library(FantasyFootballData)
 
-source("projections.R")
+# source("get_projections.R")
 source("yahooRanksChart.R")
 source("getRound.R")
 source("points_by_position_chart.R")
-source("player_game_stats.R")
-source("weekly_fantasy_points.R")
+# source("player_game_stats.R")
+# source("weekly_fantasy_points.R")
 
 drafted <- data.frame()
+projections <- FantasyFootballData::get_projections()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
-consistency <- get_consistency()
+consistency <- FantasyFootballData::get_consistency()
 gamelogs <- read.csv(file = "gamelogs.csv", header = T, stringsAsFactors = F)
 gamelogs$Player[gamelogs$Player == "Odell Beckham"] <- "Odell Beckham Jr."
 # useAltURL <- F
@@ -24,7 +26,7 @@ shinyServer(function(input, output, clientData, session) {
   my_team <- data.frame()
   draftdata <- projections
   observe({
-    draftdata <- projpts(projections,input$passyds, input$passtds, input$ints, input$rushyds, input$rushtds, input$recs, input$recyds, input$rectds, input$twopts, input$fumbles, (input$numOfTeams * input$numofqb), (input$numOfTeams * input$numofrb), (input$numOfTeams * input$numofwr), (input$numOfTeams * input$numofte))
+    draftdata <- FantasyFootballData::projected_points(projections,input$passyds, input$passtds, input$ints, input$rushyds, input$rushtds, input$recs, input$recyds, input$rectds, input$twopts, input$fumbles, (input$numOfTeams * input$numofqb), (input$numOfTeams * input$numofrb), (input$numOfTeams * input$numofwr), (input$numOfTeams * input$numofte))
     draftdata$Pos <- paste(draftdata$Pos,"(",draftdata$PosRank,")", sep="")
     draftdata$YRankVOR <- draftdata$VOR * draftdata$YRank
     draftdata$YRankVOR[draftdata$YRank == -999] <- 0
@@ -131,22 +133,24 @@ shinyServer(function(input, output, clientData, session) {
     # 
     
     playerGamelog <- reactive({
-      t <- gamelogs %>% filter(Player == input$gamelogPlayer)
+      t <- gamelogs %>% filter(Player == input$gamelogPlayer & !is.na(game_num) & game_num <= 16)
+      t <- t[order(t$game_num),]
+      t[is.na(t)] <- 0
       t$pts <- weekly_fantasy_points(t)
       if(t$Pos[1] == "QB") {
-        t <- t %>% select(Player, Week, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts)
-        colnames(t) <- c("Player", "Week", "Attempts", "Comps", "PassYds", "PassTDs", "INTs", "Rushes", "RushYds", "RushTDs", "FPts")
+        t <- t %>% select(Player, game_num, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts)
+        colnames(t) <- c("Player", "Game", "Attempts", "Comps", "PassYds", "PassTDs", "INTs", "Rushes", "RushYds", "RushTDs", "FPts")
       } else if(t$Pos[1] == "RB") {
-        t <- t %>% select(Player, Week, rush_att, rush_yds, rush_td, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
-        colnames(t) <- c("Player", "Week", "Rushes", "RushYds", "RushTDs", "Targets", "Recs", "RecYds", "RecTDs",
+        t <- t %>% select(Player, game_num, rush_att, rush_yds, rush_td, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
+        colnames(t) <- c("Player", "Game", "Rushes", "RushYds", "RushTDs", "Targets", "Recs", "RecYds", "RecTDs",
                          "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
       } else if(t$Pos[1] == "WR") {
-        t <- t %>% select(Player, Week, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
-        colnames(t) <- c("Player", "Week", "Targets", "Recs", "RecYds", "RecTDs",
+        t <- t %>% select(Player, game_num, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
+        colnames(t) <- c("Player", "Game", "Targets", "Recs", "RecYds", "RecTDs",
                          "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
       } else if(t$Pos[1] == "TE") {
-        t <- t %>% select(Player, Week, targets, rec, rec_yds, rec_td, pts)
-        colnames(t) <- c("Player", "Week", "Targets", "Recs", "RecYds", "RecTDs", "FPts")
+        t <- t %>% select(Player, game_num, targets, rec, rec_yds, rec_td, pts)
+        colnames(t) <- c("Player", "Game", "Targets", "Recs", "RecYds", "RecTDs", "FPts")
       }
       w <- which(colnames(t) %in% c("KRetYds", "KRetTDs", "PRetYds", "PRetTDs"))
       ww <- which(cbind(colSums(t[,c(3:ncol(t))])) == 0) + 2
@@ -157,7 +161,7 @@ shinyServer(function(input, output, clientData, session) {
       totals <- as.data.frame(matrix(ncol = ncol(t), nrow = 1))
       colnames(totals) <- colnames(t)
       totals$Player <- t$Player[1]
-      totals$Week <- "Season"
+      totals$Game <- "Season"
       for(i in 3:ncol(t)) {
         totals[,i] <- sum(t[,i])
       }

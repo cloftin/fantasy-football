@@ -1,11 +1,11 @@
-source("scraping.R")
+# source("scraping.R")
 rankingsChart <- function(playerName) {
   
-  yahooRanks <- getYahooRankings()
-  weekDates <- data.frame(Week = c(1:(ncol(yahooRanks) - 3)), Date = as.Date(paste0(colnames(yahooRanks)[c(4:ncol(yahooRanks))], ".2017"), format = "%m.%d.%Y"))
-  colnames(yahooRanks) <- c(colnames(yahooRanks)[c(1:3)], c(1:(ncol(yahooRanks)-3)))
+  yahooRanks <- FantasyFootballData::get_yahoo_rankings()
+  weekDates <- data.frame(Week = c(1:(ncol(yahooRanks) - 2)), Date = as.Date(paste0(colnames(yahooRanks)[c(3:ncol(yahooRanks))], "/2018"), format = "%m/%d/%Y"))
+  colnames(yahooRanks) <- c(colnames(yahooRanks)[c(1:2)], c(1:(ncol(yahooRanks)-2)))
   
-  yahooRanks <- gather(yahooRanks, Week, YRank, 4:ncol(yahooRanks))
+  yahooRanks <- gather(yahooRanks, Week, YRank, 3:ncol(yahooRanks))
   yahooRanks <- merge(yahooRanks, weekDates)
   yahooRanks$Week <- NULL
 
