@@ -1,5 +1,8 @@
 library(shiny)
+library(dplyr)
 library(shinydashboard)
+library(FantasyFootballData)
+
 playerdata <- read.csv(file="fpprojections.csv", colClasses=c("character","character","character","character","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"))
 colnames(playerdata) = c("Name","Player","Position","Team","Points","VOR","Passing Yards","Passing TDs","Interceptions","Rushing Yards","Rushing TDs","Receptions","Recieving Yards","Recieving TDs","2 Points","Fumbles","posrank","drafted","rank","yahoorank","yposrank","voy")
 playerdata$Position <- paste(playerdata$Position, "(", playerdata$posrank,")", sep="")
