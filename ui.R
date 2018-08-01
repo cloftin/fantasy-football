@@ -11,7 +11,7 @@ projections <- FantasyFootballData::get_projections()
 #draftdata <- projpts(50,5,-2,20,6,.5,20,6,2,-1,17,39,48,13)
 draftdata <- projections
 teamNumbers <- c(1:12)
-names(teamNumbers) = c("Brian", "Bryan", "John", "Me", "Steven", "Ben",
+names(teamNumbers) = c("Brian", "Bryan", "Me", "John", "Steven", "Ben",
                        "Dan", "Camen", "Kyle", "Raul", "Chip", "Ross")
 # shinyUI(fluidPage(
 # titlePanel("J.A.R.V.I.S."),
@@ -37,7 +37,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                actionButton("draft", label="Drafted"),
                                                br(),br(),
                                                numericInput("numOfTeams", "Number of Teams", 12),
-                                               selectInput("whichPick", "Which Pick", c(1:14), selected = 4)
+                                               selectInput("whichPick", "Which Pick", c(1:14), selected = 3)
                                            )),
                                          fluidRow(
                                            box(title = "Scoring", solidHeader = T, status = "success",
@@ -62,8 +62,11 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   ), column(6,
                                             fluidRow(
                                               valueBoxOutput("currentPick"),
-                                              valueBoxOutput("myNextPick"),
+                                              valueBoxOutput("myNextPick")
+                                            ),
+                                            fluidRow(
                                               h2(textOutput("name")),
+                                              uiOutput("playerPicture"),
                                               h3(textOutput("position")),
                                               uiOutput("rankingsChart"),
                                               br(),
