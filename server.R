@@ -118,13 +118,24 @@ shinyServer(function(input, output, clientData, session) {
     )
     
     output$consistency <- renderUI({
-
+      
       if(input$player != "All") {
         t <- consistencyOutput() %>% filter(Player == input$player)
         box(title = "", width = 9,
             renderTable(t))
       }
       
+    })
+    
+    output$playerPicture <- renderUI({
+      if(input$player != "All") {
+        if(input$player == "Odell Beckham Jr.") {
+          img(src="Odell Beckham.jpg", height = 100)
+        } else {
+          file = paste0(input$player, ".jpg")
+          img(src=file, height = 100)
+        }
+      }
     })
     
     
