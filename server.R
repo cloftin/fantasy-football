@@ -123,7 +123,22 @@ shinyServer(function(input, output, clientData, session) {
       
       if(input$player != "All") {
         t <- consistencyOutput() %>% filter(Player == input$player)
-        box(title = "", width = 9,
+        box(title = "", width = 12,
+            renderTable(t))
+      }
+      
+    })
+    
+    output$playerProjections <- renderUI({
+      
+      if(input$player != "All") {
+        t <- projections %>% filter(Player == input$player)
+        for(i in ncol(t):2) {
+          if(sum(t[,i] == 0)) {
+            t[,i] <- NULL
+          }
+        }
+        box(title = "", width = 12,
             renderTable(t))
       }
       
@@ -457,23 +472,43 @@ shinyServer(function(input, output, clientData, session) {
     
     
     output$qbPointsChart <- renderPlot({
-      points_by_position_chart("QB", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofqb)
+      points_by_position_chart("QB", 
+                               FantasyFootballData::tier_analysis(draftdata %>% 
+                                                                    filter(YRank != 0 & substr(Pos, 1, 2) == "QB"), 8),
+                               input$numOfTeams, input$numofqb)
     })
     
     output$rbPointsChart <- renderPlot({
-      points_by_position_chart("RB", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofrb)
+      points_by_position_chart("RB",
+                               FantasyFootballData::tier_analysis(draftdata %>% 
+                                                                    filter(YRank != 0 & substr(Pos, 1, 2) == "RB")),
+                               input$numOfTeams, input$numofrb)
     })
     
     output$wrPointsChart <- renderPlot({
-      points_by_position_chart("WR", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofwr)
+      points_by_position_chart("WR",
+                               FantasyFootballData::tier_analysis(draftdata %>% 
+                                                                    filter(YRank != 0 & substr(Pos, 1, 2) == "WR"), 12),
+                               input$numOfTeams, input$numofwr)
     })
     
     output$tePointsChart <- renderPlot({
-      points_by_position_chart("TE", draftdata %>% filter(YRank != 0), input$numOfTeams, input$numofte)
+      points_by_position_chart("TE",
+                               FantasyFootballData::tier_analysis(draftdata %>% 
+                                                                    filter(YRank != 0 & substr(Pos, 1, 2) == "TE")),
+                               input$numOfTeams, input$numofte)
     })
     
     output$allPointsChart <- renderPlot({
-      points_by_position_chart("All", draftdata %>% filter(YRank != 0), input$numOfTeams)
+      points_by_position_chart("All",
+                               FantasyFootballData::tier_analysis(draftdata %>% filter(YRank != 0),
+                                                                  input$numOfTeams))
+    })
+    
+    output$allTiersChart <- renderPlot({
+      ggplot() + geom_point(data = FantasyFootballData::tier_analysis(draftdata %>% filter(YRank != 0)),
+                            aes(x = YRank, y = VOR, color = cluster)) +
+        theme_bw() + theme(legend.position = "none")
     })
     
     

@@ -125,6 +125,9 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                 fluidRow(
                                   column(6,
                                          plotOutput("allPointsChart")
+                                  ),
+                                  column(6,
+                                         plotOutput("allTiersChart")
                                   )
                                 )
                                 
