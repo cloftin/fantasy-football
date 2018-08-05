@@ -172,7 +172,8 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   column(3,
                                          box(title = "Gamelogs", solidHeader = T, status = "success",
                                              collapsible = F, width = 12,
-                                             selectInput("gamelogPlayer", "Player:", draftdata$Player, multiple = F, selectize = T)
+                                             selectInput("gamelogPlayer", "Player:", draftdata$Player, multiple = F, selectize = T),
+                                             selectInput("gamelogYear", "Year:", c(2017:2010), multiple = F, selectize = T)
                                          )
                                   ),
                                   column(9,

@@ -16,8 +16,6 @@ drafted <- data.frame()
 projections <- FantasyFootballData::get_projections()
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
 consistency <- FantasyFootballData::get_consistency()
-gamelogs <- read.csv(file = "gamelogs.csv", header = T, stringsAsFactors = F)
-gamelogs$Player[gamelogs$Player == "Odell Beckham"] <- "Odell Beckham Jr."
 gamelogs <- plyr::ldply(list.files("data/gamelogs/"), function(x) {
   return(read.csv(file = paste0("data/gamelogs/", x), header = T, stringsAsFactors = F))
 })
@@ -106,7 +104,6 @@ shinyServer(function(input, output, clientData, session) {
     consistencyTable <- reactive({
       t <- consistencyOutput()
       if(input$consPlayer != "All") {
-        t <- t %>% filter(Player == input$consPlayer)
         t <- t %>% filter(player == input$consPlayer)
       }
       if(input$consPos != "All") {
@@ -150,30 +147,21 @@ shinyServer(function(input, output, clientData, session) {
     # 
     
     playerGamelog <- reactive({
-      t <- gamelogs %>% filter(Player == input$gamelogPlayer & !is.na(game_num) & game_num <= 16)
       t <- gamelogs %>% filter(player == input$gamelogPlayer & year == input$gamelogYear & !is.na(game_num) & game_num <= 16)
       t <- t[order(t$game_num),]
       t[is.na(t)] <- 0
       t$pts <- weekly_fantasy_points(t)
-      if(t$Pos[1] == "QB") {
-        t <- t %>% select(Player, game_num, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts)
       if(t$position[1] == "QB") {
         t <- t %>% select(player, game_num, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts)
         colnames(t) <- c("Player", "Game", "Attempts", "Comps", "PassYds", "PassTDs", "INTs", "Rushes", "RushYds", "RushTDs", "FPts")
-      } else if(t$Pos[1] == "RB") {
-        t <- t %>% select(Player, game_num, rush_att, rush_yds, rush_td, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
       } else if(t$position[1] == "RB") {
         t <- t %>% select(player, game_num, rush_att, rush_yds, rush_td, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
         colnames(t) <- c("Player", "Game", "Rushes", "RushYds", "RushTDs", "Targets", "Recs", "RecYds", "RecTDs",
                          "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
-      } else if(t$Pos[1] == "WR") {
-        t <- t %>% select(Player, game_num, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
       } else if(t$position[1] == "WR") {
         t <- t %>% select(player, game_num, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
         colnames(t) <- c("Player", "Game", "Targets", "Recs", "RecYds", "RecTDs",
                          "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
-      } else if(t$Pos[1] == "TE") {
-        t <- t %>% select(Player, game_num, targets, rec, rec_yds, rec_td, pts)
       } else if(t$position[1] == "TE") {
         t <- t %>% select(player, game_num, targets, rec, rec_yds, rec_td, pts)
         colnames(t) <- c("Player", "Game", "Targets", "Recs", "RecYds", "RecTDs", "FPts")
