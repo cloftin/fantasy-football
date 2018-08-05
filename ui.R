@@ -13,6 +13,8 @@ draftdata <- projections
 teamNumbers <- c(1:12)
 names(teamNumbers) = c("Brian", "Bryan", "Me", "John", "Steven", "Ben",
                        "Dan", "Camen", "Kyle", "Raul", "Chip", "Ross")
+names(teamNumbers) = c("Bryan", "Raul", "Me", "Steven", "Ross", "Ben",
+                       "Chip", "Kyle", "John", "Dan", "Brian", "Camen")
 # shinyUI(fluidPage(
 # titlePanel("J.A.R.V.I.S."),
 # tabsetPanel(
