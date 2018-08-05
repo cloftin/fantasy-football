@@ -11,8 +11,8 @@ projections <- FantasyFootballData::get_projections()
 #draftdata <- projpts(50,5,-2,20,6,.5,20,6,2,-1,17,39,48,13)
 draftdata <- projections
 teamNumbers <- c(1:12)
-names(teamNumbers) = c("Brian", "Bryan", "Me", "John", "Steven", "Ben",
-                       "Dan", "Camen", "Kyle", "Raul", "Chip", "Ross")
+names(teamNumbers) = c("Bryan", "Raul", "Me", "Steven", "Ross", "Ben",
+                       "Chip", "Kyle", "John", "Dan", "Brian", "Camen")
 # shinyUI(fluidPage(
 # titlePanel("J.A.R.V.I.S."),
 # tabsetPanel(
@@ -72,6 +72,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                               br(),
                                               uiOutput("myteam"),
                                               DT::dataTableOutput("playerList"),
+                                              uiOutput("playerProjections"),
                                               uiOutput("consistency")
                                             )
                                   )
@@ -124,6 +125,9 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                 fluidRow(
                                   column(6,
                                          plotOutput("allPointsChart")
+                                  ),
+                                  column(6,
+                                         plotOutput("allTiersChart")
                                   )
                                 )
                                 
@@ -147,13 +151,32 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   )
                                 )
                        ),
+                       tabPanel("Year-by-Year",
+                                br(),
+                                fluidRow(
+                                  column(3,
+                                         box(title = "Year-by-Year", solidHeader = T, status = "success",
+                                             collapsible = F, width = 12,
+                                             selectInput("yearlyPlayer", "Player:", draftdata$Player, multiple = F, selectize = T)
+                                         )
+                                  ),
+                                  column(9,
+                                         fluidRow(
+                                           column(11,
+                                                  tableOutput("yearlystats")
+                                           )
+                                         )
+                                  )
+                                )
+                       ),
                        tabPanel("Gamelogs", 
                                 br(),
                                 fluidRow(
                                   column(3,
                                          box(title = "Gamelogs", solidHeader = T, status = "success",
                                              collapsible = F, width = 12,
-                                             selectInput("gamelogPlayer", "Player:", draftdata$Player, multiple = F, selectize = T)
+                                             selectInput("gamelogPlayer", "Player:", draftdata$Player, multiple = F, selectize = T),
+                                             selectInput("gamelogYear", "Year:", c(2017:2010), multiple = F, selectize = T)
                                          )
                                   ),
                                   column(9,
