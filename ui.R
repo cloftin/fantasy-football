@@ -147,6 +147,24 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                   )
                                 )
                        ),
+                       tabPanel("Year-by-Year",
+                                br(),
+                                fluidRow(
+                                  column(3,
+                                         box(title = "Year-by-Year", solidHeader = T, status = "success",
+                                             collapsible = F, width = 12,
+                                             selectInput("yearlyPlayer", "Player:", draftdata$Player, multiple = F, selectize = T)
+                                         )
+                                  ),
+                                  column(9,
+                                         fluidRow(
+                                           column(11,
+                                                  tableOutput("yearlystats")
+                                           )
+                                         )
+                                  )
+                                )
+                       ),
                        tabPanel("Gamelogs", 
                                 br(),
                                 fluidRow(
