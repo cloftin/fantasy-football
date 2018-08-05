@@ -11,8 +11,6 @@ projections <- FantasyFootballData::get_projections()
 #draftdata <- projpts(50,5,-2,20,6,.5,20,6,2,-1,17,39,48,13)
 draftdata <- projections
 teamNumbers <- c(1:12)
-names(teamNumbers) = c("Brian", "Bryan", "Me", "John", "Steven", "Ben",
-                       "Dan", "Camen", "Kyle", "Raul", "Chip", "Ross")
 names(teamNumbers) = c("Bryan", "Raul", "Me", "Steven", "Ross", "Ben",
                        "Chip", "Kyle", "John", "Dan", "Brian", "Camen")
 # shinyUI(fluidPage(
@@ -74,6 +72,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                               br(),
                                               uiOutput("myteam"),
                                               DT::dataTableOutput("playerList"),
+                                              uiOutput("playerProjections"),
                                               uiOutput("consistency")
                                             )
                                   )
