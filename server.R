@@ -1,9 +1,11 @@
 library(shiny)
+library(plyr)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(DT)
 library(FantasyFootballData)
+library(YahooFantasyAPI)
 
 # source("get_projections.R")
 source("yahooRanksChart.R")
@@ -11,6 +13,14 @@ source("getRound.R")
 source("points_by_position_chart.R")
 # source("player_game_stats.R")
 # source("weekly_fantasy_points.R")
+
+key <- readLines("yahoocreds.txt")[1]
+secret <- readLines("yahoocreds.txt")[2]
+if(exists("fantasyEnv")) {
+  YahooFantasyAPI::check_token()
+} else {
+  YahooFantasyAPI::get_token(key, secret)
+}
 
 drafted <- data.frame()
 projections <- FantasyFootballData::get_projections()
