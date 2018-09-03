@@ -11,19 +11,25 @@ library(YahooFantasyAPI)
 source("yahooRanksChart.R")
 source("getRound.R")
 source("points_by_position_chart.R")
+source("optimal_draft.R")
 # source("player_game_stats.R")
 # source("weekly_fantasy_points.R")
 
 key <- readLines("yahoocreds.txt")[1]
 secret <- readLines("yahoocreds.txt")[2]
-if(exists("fantasyEnv")) {
-  YahooFantasyAPI::check_token()
-} else {
-  YahooFantasyAPI::get_token(key, secret)
-}
+# if(exists("fantasyEnv")) {
+#   YahooFantasyAPI::check_token()
+# } else {
+#   YahooFantasyAPI::get_token(key, secret)
+# }
 
 drafted <- data.frame()
+# optimum <<- data.frame()
 projections <- FantasyFootballData::get_projections()
+fp <- FantasyFootballData::get_projections()
+espn <- FantasyFootballData::espn_projections()
+action <- FantasyFootballData::action_network()
+
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
 consistency <- FantasyFootballData::get_consistency()
 gamelogs <- plyr::ldply(list.files("data/gamelogs/"), function(x) {
@@ -34,6 +40,58 @@ gamelogs$player[gamelogs$player == "Odell Beckham"] <- "Odell Beckham Jr."
 
 shinyServer(function(input, output, clientData, session) {
   
+  # projections <- reactive({
+  #   stats <- c("PassYds", "PassTDs", "PassInts", "RushYds", "RushTDs", "Receptions",
+  #              "RecYds", "RecTDs", "TwoPts", "Fumbles")
+  # 
+  #   dat <- merge(merge(fp, espn, all = T, by = c("Player", "Pos", "Team")), 
+  #                action, all = T, by = c("Player", "Pos", "Team"))
+  #   dat <- dat[complete.cases(dat$Team),] %>% filter(!(Pos %in% c("ST", "DST", "K")))
+  #   dat[is.na(dat)] <- 0
+  #   
+  #   if(input$projectionmethod == "Custom") {
+  #     
+  #     fp_weight <- input$fantasypros
+  #     espn_weight <- input$espn
+  #     action_weight <- input$action
+  #     
+  #     if(fp_weight + espn_weight + action_weight > 1) {
+  #       total <- fp_weight + espn_weight + action_weight
+  #       fp_weight <- fp_weight/total
+  #       espn_weight <- espn_weight/total
+  #       action_weight <- action_weight/total
+  #     } else {
+  #       fp_weight <- fp_weight + (1 - fp_weight - espn_weight - action_weight)
+  #     }
+  #     
+  #     dat <- apply(dat, 1, function(x) {
+  #       t <- data.frame(matrix(ncol = length(stats), nrow = 1))
+  #       colnames(t) <- stats
+  #       for(i in 1:length(stats)) {
+  #         t[1,i] <- x[stats[i]] * fp_weight + 
+  #           x[paste0(stats[i], ".x")] * espn_weight +
+  #           x[paste0(stats[i], ".y")] * action_weight
+  #       }
+  #       t$Player <- x$Player
+  #       t$Pos <- x$Pos
+  #       t$Team <- x$Team
+  #     })
+  #     
+  #   } else {
+  #     dat <- apply(dat, 1, function(x) {
+  #       t <- data.frame(matrix(ncol = length(stats), nrow = 1))
+  #       colnames(t) <- stats
+  #       for(i in 1:length(stats)) {
+  #         t[1,i] <- mean(unlist(c(x[stats[i]], x[paste0(stats[i], ".x")], x[paste0(stats[i], ".y")])))
+  #       }
+  #       t$Player <- x$Player
+  #       t$Pos <- x$Pos
+  #       t$Team <- x$Team
+  #     })
+  #   }
+  #   
+  #   dat
+  # })
   drafted <- data.frame()
   
   my_team <- data.frame()
@@ -172,24 +230,26 @@ shinyServer(function(input, output, clientData, session) {
     # 
     
     playerGamelog <- reactive({
-      t <- gamelogs %>% filter(player == input$gamelogPlayer & year == input$gamelogYear & !is.na(game_num) & game_num <= 16)
-      t <- t[order(t$game_num),]
+      t <- gamelogs %>% filter(year == input$gamelogYear & !is.na(game_num) & game_num <= 16)
       t[is.na(t)] <- 0
       t$pts <- weekly_fantasy_points(t)
+      t <- t %>% arrange(-pts) %>% group_by(game_num, position) %>%
+        mutate(wkrank = row_number())
+      t <- t %>% filter(player == input$gamelogPlayer) %>% arrange(game_num) %>% data.frame()
       if(t$position[1] == "QB") {
-        t <- t %>% select(player, game_num, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts)
-        colnames(t) <- c("Player", "Game", "Attempts", "Comps", "PassYds", "PassTDs", "INTs", "Rushes", "RushYds", "RushTDs", "FPts")
+        t <- t %>% select(player, game_num, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts, wkrank)
+        colnames(t) <- c("Player", "Game", "Attempts", "Comps", "PassYds", "PassTDs", "INTs", "Rushes", "RushYds", "RushTDs", "FPts", "WkRank")
       } else if(t$position[1] == "RB") {
-        t <- t %>% select(player, game_num, rush_att, rush_yds, rush_td, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
+        t <- t %>% select(player, game_num, rush_att, rush_yds, rush_td, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts, wkrank)
         colnames(t) <- c("Player", "Game", "Rushes", "RushYds", "RushTDs", "Targets", "Recs", "RecYds", "RecTDs",
-                         "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
+                         "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts", "WkRank")
       } else if(t$position[1] == "WR") {
-        t <- t %>% select(player, game_num, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts)
+        t <- t %>% select(player, game_num, targets, rec, rec_yds, rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts, wkrank)
         colnames(t) <- c("Player", "Game", "Targets", "Recs", "RecYds", "RecTDs",
-                         "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
+                         "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts", "WkRank")
       } else if(t$position[1] == "TE") {
-        t <- t %>% select(player, game_num, targets, rec, rec_yds, rec_td, pts)
-        colnames(t) <- c("Player", "Game", "Targets", "Recs", "RecYds", "RecTDs", "FPts")
+        t <- t %>% select(player, game_num, targets, rec, rec_yds, rec_td, pts, wkrank)
+        colnames(t) <- c("Player", "Game", "Targets", "Recs", "RecYds", "RecTDs", "FPts", "WkRank")
       }
       w <- which(colnames(t) %in% c("KRetYds", "KRetTDs", "PRetYds", "PRetTDs"))
       ww <- which(cbind(colSums(t[,c(3:ncol(t))])) == 0) + 2
@@ -213,54 +273,94 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     yearlyPlayer <- reactive({
-      t <- gamelogs %>% filter(player == input$yearlyPlayer & !is.na(game_num) & game_num <= 16)
+      t <- gamelogs %>% filter(!is.na(game_num) & game_num <= 16)
       t <- t[order(t$game_num),]
       t[is.na(t)] <- 0
       t$pts <- weekly_fantasy_points(t)
-      if(t$position[1] == "QB") {
-        t <- t %>% select(player, year, pass_att, pass_cmp, pass_yds, pass_td,
-                          pass_int, rush_att, rush_yds, rush_td, pts) %>%
+      position <- t %>% filter(player == input$yearlyPlayer) %>% select(position) %>% .[1,1]
+      if(input$yearlyPlayer == "Alex Smith") {
+        position = "QB"
+      }
+      if(position == "QB") {
+        t <- t %>% filter(position == "QB") %>%
+          select(player, year, pass_att, pass_cmp, pass_yds, pass_td,
+                 pass_int, rush_att, rush_yds, rush_td, pts) %>%
           group_by(player, year) %>%
-          dplyr::summarize(pass_att = sum(pass_att), pass_cmp = sum(pass_cmp), cmp_pct = sum(pass_cmp)/sum(pass_att),
+          dplyr::summarize(games = n(), pass_att = sum(pass_att), pass_cmp = sum(pass_cmp), cmp_pct = sum(pass_cmp)/sum(pass_att),
                            pass_yds = sum(pass_yds), pass_td = sum(pass_td), pass_int = sum(pass_int),
                            rush_att = sum(rush_att), rush_yds = sum(rush_yds), rush_td = sum(rush_td),
-                           pts = sum(pts)) %>%
+                           pts = sum(pts), ppg = sum(pts)/n()) %>%
+          arrange(-pts) %>% group_by(year) %>%
+          mutate(rank = row_number()) %>%
+          arrange(-ppg) %>% group_by(year) %>%
+          filter(games >= 6) %>%
+          mutate(ppg_rank = row_number()) %>%
+          filter(player == input$yearlyPlayer) %>%
+          arrange(-year) %>%
+          select(-pass_cmp, -pass_att, -cmp_pct) %>%
           data.frame()
         
-        colnames(t) <- c("Player", "Year", "Attempts", "Comps", "Comp %", "PassYds", "PassTDs", "INTs", "Rushes", "RushYds", "RushTDs", "FPts")
-      } else if(t$position[1] == "RB") {
-        t <- t %>% select(player, year, rush_att, rush_yds, rush_td, targets, rec, rec_yds,
-                          rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts) %>%
+        colnames(t) <- c("Player", "Year", "Games", "PassYds", "PassTDs", "INTs", 
+                         "Rushes", "RushYds", "RushTDs", "FPts", "PPG", "PosRank", "PPGRank")
+      } else if(position == "RB") {
+        t <- t %>% filter(position == "RB") %>%
+          select(player, year, rush_att, rush_yds, rush_td, targets, rec, rec_yds,
+                 rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts) %>%
           group_by(player, year) %>%
-          dplyr::summarize(rush_att = sum(rush_att), rush_yds = sum(rush_yds), rush_td = sum(rush_td),
+          dplyr::summarize(games = n(), rush_att = sum(rush_att), rush_yds = sum(rush_yds), rush_td = sum(rush_td),
                            targets = sum(targets), rec = sum(rec), rec_yds = sum(rec_yds),
-                           rec_td = sum(rec_td), pts = sum(pts)) %>%
+                           rec_td = sum(rec_td), pts = sum(pts), ppg = sum(pts)/n()) %>%
+          arrange(-pts) %>% group_by(year) %>%
+          mutate(rank = row_number()) %>%
+          arrange(-ppg) %>% group_by(year) %>%
+          filter(games >= 6) %>%
+          mutate(ppg_rank = row_number()) %>%
+          filter(player == input$yearlyPlayer) %>%
+          arrange(-year) %>%
           data.frame()
         
-        colnames(t) <- c("Player", "Year", "Rushes", "RushYds", "RushTDs", "Targets", 
-                         "Recs", "RecYds", "RecTDs", "FPts")
-      } else if(t$position[1] == "WR") {
-        t <- t %>% select(player, year, rush_att, rush_yds, rush_td, targets, rec, rec_yds,
-                          rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts) %>%
+        colnames(t) <- c("Player", "Year", "Games", "Rushes", "RushYds", "RushTDs", "Targets", 
+                         "Recs", "RecYds", "RecTDs", "FPts", "PPG", "PosRank", "PPGRank")
+      } else if(position == "WR") {
+        t <- t %>% filter(position == "WR") %>%
+          select(player, year, rush_att, rush_yds, rush_td, targets, rec, rec_yds,
+                 rec_td, kick_ret_yds, kick_ret_td, punt_ret_yds, punt_ret_td, pts) %>%
           group_by(player, year) %>%
-          dplyr::summarize(targets = sum(targets), rec = sum(rec), rec_yds = sum(rec_yds), rec_td = sum(rec_td),
+          dplyr::summarize(games = n(), targets = sum(targets), rec = sum(rec), rec_yds = sum(rec_yds), rec_td = sum(rec_td),
                            kick_ret_yds = sum(kick_ret_yds), kick_ret_td = sum(kick_ret_td),
                            punt_ret_yds = sum(punt_ret_yds), punt_ret_td = sum(punt_ret_td),
-                           pts = sum(pts)) %>%
+                           pts = sum(pts), ppg = sum(pts)/n()) %>%
+          arrange(-pts) %>% group_by(year) %>%
+          mutate(rank = row_number()) %>%
+          arrange(-ppg) %>% group_by(year) %>%
+          filter(games >= 6) %>%
+          mutate(ppg_rank = row_number()) %>%
+          filter(player == input$yearlyPlayer) %>%
+          arrange(-year) %>%
+          select(-kick_ret_yds, -kick_ret_td, -punt_ret_yds, -punt_ret_td) %>%
           data.frame()
         
-        colnames(t) <- c("Player", "Year", "Targets", "Recs", "RecYds", "RecTDs",
-                         "KRetYds", "KRetTDs", "PRetYds", "PRetTDs", "FPts")
+        colnames(t) <- c("Player", "Year", "Games", "Targets", "Recs", "RecYds", "RecTDs",
+                         "FPts", "PPG", "PosRank", "PPGRank")
         
-      } else if(t$position[1] == "TE") {
-        t <- t %>% select(player, year, rush_att, rush_yds, rush_td, targets, rec, rec_yds,
-                          rec_td, pts) %>%
+      } else if(position == "TE") {
+        t <- t %>% filter(position == "TE") %>% 
+          select(player, year, rush_att, rush_yds, rush_td, targets, rec, rec_yds,
+                 rec_td, pts) %>%
           group_by(player, year) %>%
-          dplyr::summarize(targets = sum(targets), rec = sum(rec), rec_yds = sum(rec_yds),
-                           rec_td = sum(rec_td), pts = sum(pts)) %>%
+          dplyr::summarize(games = n(), targets = sum(targets), rec = sum(rec), rec_yds = sum(rec_yds),
+                           rec_td = sum(rec_td), pts = sum(pts), ppg = sum(pts)/n()) %>%
+          arrange(-pts) %>% group_by(year) %>%
+          mutate(rank = row_number()) %>%
+          arrange(-ppg) %>% group_by(year) %>%
+          filter(games >= 6) %>%
+          mutate(ppg_rank = row_number()) %>%
+          filter(player == input$yearlyPlayer) %>%
+          arrange(-year) %>%
           data.frame()
         
-        colnames(t) <- c("Player", "Year", "Targets", "Recs", "RecYds", "RecTDs", "FPts")
+        colnames(t) <- c("Player", "Year", "Games", "Targets", "Recs", 
+                         "RecYds", "RecTDs", "FPts", "PPG", "PosRank", "PPGRank")
       }
       
       for(i in 3:(ncol(t) - 1)) {
@@ -521,10 +621,66 @@ shinyServer(function(input, output, clientData, session) {
         theme_bw() + theme(legend.position = "none")
     })
     
+    output$risers <- renderTable({
+      risers <- FantasyFootballData::get_yahoo_rankings()
+      risers <- risers %>% filter(.[,ncol(.)] < 200)
+      risers$diff <- risers[,ncol(risers)-1] - risers[,ncol(risers)]
+      risers <- risers %>% filter(diff >= 1)
+      risers <- risers[order(-risers$diff),]
+      risers
+    })
+    
+    output$fallers <- renderTable({
+      fallers <- FantasyFootballData::get_yahoo_rankings()
+      fallers <- fallers %>% filter(.[,ncol(.)] < 200)
+      fallers$diff <- fallers[,ncol(fallers)-1] - fallers[,ncol(fallers)]
+      fallers <- fallers %>% filter(diff <= -1)
+      fallers <- fallers[order(fallers$diff),]
+      fallers
+    })
     
     input$draft
     isolate({
       drafted <<- rbind(drafted, subset(draftdata, draftdata$Player == input$player))
+      write.csv(drafted, file = "drafted.csv", row.names = F)
+    })
+    
+    optimum <- eventReactive(input$optimize, {
+      removeKeepers = TRUE
+      if(input$numOfTeams != 12) {
+        removeKeepers = FALSE
+      }
+      optimal_draft(myteam = myTeam(),
+                    available = draftdata[!(draftdata$Player %in% drafted$Player),], 
+                    currentPick = (nrow(drafted) + 1), 
+                    myPick = input$whichPick, numTeams = input$numOfTeams, removeKeepers = removeKeepers)
+    })
+    
+    output$optimumTeam <- renderTable({
+      optimum()
+    })
+    
+    
+    output$fantasypros <- renderUI({
+      if(input$projectionmethod == "Custom") {
+        numericInput("fantasypros", "FantasyPros:",
+                     min = 0, max = 1,
+                     value = 0.33)
+      }
+    })
+    output$espn <- renderUI({
+      if(input$projectionmethod == "Custom") {
+        numericInput("espn", "ESPN:",
+                     min = 0, max = 1,
+                     value = 0.33)
+      }
+    })
+    output$action <- renderUI({
+      if(input$projectionmethod == "Custom") {
+        numericInput("action", "ActionNetwork:",
+                     min = 0, max = 1,
+                     value = 0.33)
+      }
     })
     
     updateSelectInput(session, "player", choices = c("All", playerSet()$Player), selected="All")

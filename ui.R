@@ -3,6 +3,7 @@ library(plyr)
 library(dplyr)
 library(shinydashboard)
 library(FantasyFootballData)
+library(shinycssloaders)
 
 playerdata <- read.csv(file="fpprojections.csv", colClasses=c("character","character","character","character","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"))
 colnames(playerdata) = c("Name","Player","Position","Team","Points","VOR","Passing Yards","Passing TDs","Interceptions","Rushing Yards","Rushing TDs","Receptions","Recieving Yards","Recieving TDs","2 Points","Fumbles","posrank","drafted","rank","yahoorank","yposrank","voy")
@@ -37,6 +38,11 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                # actionButton("myteam", label="My Team"),
                                                actionButton("draft", label="Drafted"),
                                                br(),br(),
+                                               selectInput("projectionmethod", label = "Projection Weights", 
+                                                           choices = c("Average", "Custom")),
+                                               uiOutput("fantasypros"),
+                                               uiOutput("espn"),
+                                               uiOutput("action"),
                                                numericInput("numOfTeams", "Number of Teams", 12),
                                                selectInput("whichPick", "Which Pick", c(1:14), selected = 3)
                                            )),
@@ -72,7 +78,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                               uiOutput("rankingsChart"),
                                               br(),
                                               uiOutput("myteam"),
-                                              DT::dataTableOutput("playerList"),
+                                              DT::dataTableOutput("playerList") %>% withSpinner(color="#17A65A"),
                                               uiOutput("playerProjections"),
                                               uiOutput("consistency")
                                             )
@@ -103,6 +109,17 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                              tableOutput("matrixViewer")
                                          )
                                   )
+                                )
+                       ),
+                       tabPanel("Optimum Team",
+                                br(),
+                                fluidRow(
+                                  column(3,
+                                         actionButton("optimize", label="Optimize")
+                                         ),
+                                  column(9,
+                                         tableOutput("optimumTeam") %>% withSpinner(color="#17A65A")
+                                         )
                                 )
                        ),
                        tabPanel("Points By Position",
@@ -155,13 +172,13 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                        tabPanel("Year-by-Year",
                                 br(),
                                 fluidRow(
-                                  column(3,
+                                  column(2,
                                          box(title = "Year-by-Year", solidHeader = T, status = "success",
                                              collapsible = F, width = 12,
                                              selectInput("yearlyPlayer", "Player:", draftdata$Player, multiple = F, selectize = T)
                                          )
                                   ),
-                                  column(9,
+                                  column(10,
                                          fluidRow(
                                            column(11,
                                                   tableOutput("yearlystats")
@@ -186,6 +203,17 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                   tableOutput("gamelog")
                                            )
                                          )
+                                  )
+                                )
+                       ),
+                       tabPanel("Y Movement",
+                                br(),
+                                fluidRow(
+                                  column(6,
+                                         tableOutput("risers")
+                                         ),
+                                  column(6,
+                                         tableOutput("fallers")
                                   )
                                 )
                        )
