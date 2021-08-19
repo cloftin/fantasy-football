@@ -47,6 +47,7 @@ projected_points <- function(x, passyds = 50, passtds = 5, ints = -2, rushyds = 
   yahoorankings <- get_yahoo_rankings()
   yahoorankings$Player <- gsub(" Jr.| V| II", "", yahoorankings$Player)
   yahoorankings$Player <- gsub("Mitchell Trubisky", "Mitch Trubisky", yahoorankings$Player)
+  yahoorankings$Player <- gsub("\\.", "", yahoorankings$Player)
   yahoorankings$Team <- gsub("JAX", "JAC", yahoorankings$Team)
   yahoorankings <- yahoorankings[,c(1:3, ncol(yahoorankings))]
   colnames(yahoorankings) <- c("Player", "Team", "Pos", "YRank")
@@ -55,6 +56,7 @@ projected_points <- function(x, passyds = 50, passtds = 5, ints = -2, rushyds = 
   colnames(toreturn) = c("Player","Pos","Team","Points","VOR","Rank","PosRank")
   toreturn$Player <- gsub(" Jr.| V| II", "", toreturn$Player)
   toreturn$Player <- gsub("Devante Parker", "DeVante Parker", toreturn$Player)
+  toreturn$Player <- gsub("\\.", "", toreturn$Player)
   
   temp <- toreturn
   toreturn <- NULL

@@ -1,5 +1,5 @@
 
-optimal_draft <- function(myteam = NULL, available, currentPick, myPick = 3, numTeams = 12, removeKeepers = T) {
+optimal_draft <- function(myteam = NULL, available, currentPick, myPick = 3, numTeams = 12, removeKeepers = F) {
   
   myteam$Pos <- substr(myteam$Pos, 1, 2)
   

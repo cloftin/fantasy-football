@@ -13,8 +13,8 @@ projections <- FantasyFootballData::get_projections()
 #draftdata <- projpts(50,5,-2,20,6,.5,20,6,2,-1,17,39,48,13)
 draftdata <- projections
 teamNumbers <- c(1:12)
-names(teamNumbers) = c("Bryan", "Raul", "Me", "Steven", "Ross", "Ben",
-                       "Chip", "Kyle", "John", "Dan", "Brian", "Camen")
+names(teamNumbers) = c("Me", "Steven", "Me", "Steven", "Ross", "Dan",
+                       "Ben", "Chip", "Ross", "Dan", "Brian", "Camen")
 # shinyUI(fluidPage(
 # titlePanel("J.A.R.V.I.S."),
 # tabsetPanel(
@@ -41,10 +41,10 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                                selectInput("projectionmethod", label = "Projection Weights", 
                                                            choices = c("Average", "Custom")),
                                                uiOutput("fantasypros"),
-                                               uiOutput("espn"),
+                                               # uiOutput("espn"),
                                                uiOutput("action"),
                                                numericInput("numOfTeams", "Number of Teams", 12),
-                                               selectInput("whichPick", "Which Pick", c(1:14), selected = 3)
+                                               selectInput("whichPick", "Which Pick", c(1:14), selected = 1)
                                            )),
                                          fluidRow(
                                            box(title = "Scoring", solidHeader = T, status = "success",
@@ -194,7 +194,7 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                          box(title = "Gamelogs", solidHeader = T, status = "success",
                                              collapsible = F, width = 12,
                                              selectInput("gamelogPlayer", "Player:", draftdata$Player, multiple = F, selectize = T),
-                                             selectInput("gamelogYear", "Year:", c(2017:2010), multiple = F, selectize = T)
+                                             selectInput("gamelogYear", "Year:", c(2020:2008), multiple = F, selectize = T)
                                          )
                                   ),
                                   column(9,

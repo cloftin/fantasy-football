@@ -25,10 +25,14 @@ secret <- readLines("yahoocreds.txt")[2]
 
 drafted <- data.frame()
 # optimum <<- data.frame()
-projections <- FantasyFootballData::get_projections()
-fp <- FantasyFootballData::get_projections()
-espn <- FantasyFootballData::espn_projections()
-action <- FantasyFootballData::action_network()
+if(!exists("projections")) {
+  projections <- FantasyFootballData::get_projections()
+}
+if(!exists("fp")) {
+  fp <- FantasyFootballData::get_projections()
+}
+# espn <- FantasyFootballData::espn_projections()
+# action <- FantasyFootballData::action_network()
 
 logos <- read.csv(file = "logos.csv", header = T, stringsAsFactors = F)
 consistency <- FantasyFootballData::get_consistency()
@@ -217,7 +221,8 @@ shinyServer(function(input, output, clientData, session) {
         if(input$player == "Odell Beckham Jr.") {
           img(src="Odell Beckham.jpg", height = 100)
         } else {
-          file = paste0(input$player, ".jpg")
+          file = paste0(tolower(gsub(" |\\.|'|\\. |' ", "-", input$player)), ".jpg")
+          print(file)
           img(src=file, height = 100)
         }
       }
@@ -235,6 +240,7 @@ shinyServer(function(input, output, clientData, session) {
       t$pts <- weekly_fantasy_points(t)
       t <- t %>% arrange(-pts) %>% group_by(game_num, position) %>%
         mutate(wkrank = row_number())
+      t$player <- stringi::stri_trim(t$player)
       t <- t %>% filter(player == input$gamelogPlayer) %>% arrange(game_num) %>% data.frame()
       if(t$position[1] == "QB") {
         t <- t %>% select(player, game_num, pass_att, pass_cmp, pass_yds, pass_td, pass_int, rush_att, rush_yds, rush_td, pts, wkrank)
@@ -624,18 +630,22 @@ shinyServer(function(input, output, clientData, session) {
     output$risers <- renderTable({
       risers <- FantasyFootballData::get_yahoo_rankings()
       risers <- risers %>% filter(.[,ncol(.)] < 200)
-      risers$diff <- risers[,ncol(risers)-1] - risers[,ncol(risers)]
-      risers <- risers %>% filter(diff >= 1)
-      risers <- risers[order(-risers$diff),]
+      if(ncol(risers) > 4) {
+        risers$diff <- risers[,ncol(risers)-1] - risers[,ncol(risers)]
+        risers <- risers %>% filter(diff >= 1)
+        risers <- risers[order(-risers$diff),]
+      }
       risers
     })
     
     output$fallers <- renderTable({
       fallers <- FantasyFootballData::get_yahoo_rankings()
       fallers <- fallers %>% filter(.[,ncol(.)] < 200)
-      fallers$diff <- fallers[,ncol(fallers)-1] - fallers[,ncol(fallers)]
-      fallers <- fallers %>% filter(diff <= -1)
-      fallers <- fallers[order(fallers$diff),]
+      if(ncol(fallers) > 4) {
+        fallers$diff <- fallers[,ncol(fallers)-1] - fallers[,ncol(fallers)]
+        fallers <- fallers %>% filter(diff <= -1)
+        fallers <- fallers[order(fallers$diff),]
+      }
       fallers
     })
     
@@ -668,13 +678,13 @@ shinyServer(function(input, output, clientData, session) {
                      value = 0.33)
       }
     })
-    output$espn <- renderUI({
-      if(input$projectionmethod == "Custom") {
-        numericInput("espn", "ESPN:",
-                     min = 0, max = 1,
-                     value = 0.33)
-      }
-    })
+    # output$espn <- renderUI({
+    #   if(input$projectionmethod == "Custom") {
+    #     numericInput("espn", "ESPN:",
+    #                  min = 0, max = 1,
+    #                  value = 0.33)
+    #   }
+    # })
     output$action <- renderUI({
       if(input$projectionmethod == "Custom") {
         numericInput("action", "ActionNetwork:",
