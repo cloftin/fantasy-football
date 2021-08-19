@@ -4,6 +4,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(DT)
+library(plotly)
 library(FantasyFootballData)
 library(YahooFantasyAPI)
 
@@ -235,9 +236,15 @@ shinyServer(function(input, output, clientData, session) {
     # 
     
     playerGamelog <- reactive({
-      t <- gamelogs %>% filter(year == input$gamelogYear & !is.na(game_num) & game_num <= 16)
+      t <- gamelogs %>% filter(year == input$gamelogYear & !is.na(game_num) & game_num <= 16 & 
+                                 (rush_att > 0 | rec > 0 | pass_att > 0))
       t[is.na(t)] <- 0
       t$pts <- weekly_fantasy_points(t)
+      
+      seasonal <- t %>% group_by(player) %>% select(player, position, pts) %>% mutate(seasonpts = sum(pts)) %>%
+        select(-pts) %>% unique() %>% arrange(-seasonpts) %>% group_by(position) %>%
+        mutate(WkRank = row_number())
+      
       t <- t %>% arrange(-pts) %>% group_by(game_num, position) %>%
         mutate(wkrank = row_number())
       t$player <- stringi::stri_trim(t$player)
@@ -267,9 +274,12 @@ shinyServer(function(input, output, clientData, session) {
       colnames(totals) <- colnames(t)
       totals$Player <- t$Player[1]
       totals$Game <- "Season"
+      
       for(i in 3:ncol(t)) {
-        totals[,i] <- sum(t[,i])
+        totals[,i] <- as.integer(sum(t[,i]))
       }
+      
+      totals <- merge(totals %>% select (-WkRank), seasonal[, c("player", "WkRank")], by.x = "Player", by.y = "player")
       t <- rbind(t, totals)
       t
     })
@@ -279,7 +289,8 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     yearlyPlayer <- reactive({
-      t <- gamelogs %>% filter(!is.na(game_num) & game_num <= 16)
+      t <- gamelogs %>% filter(!is.na(game_num) & game_num <= 16 &
+                                 (rush_att > 0 | rec > 0 | pass_att > 0))
       t <- t[order(t$game_num),]
       t[is.na(t)] <- 0
       t$pts <- weekly_fantasy_points(t)
@@ -587,44 +598,46 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     
-    output$qbPointsChart <- renderPlot({
+    output$qbPointsChart <- renderPlotly({
       points_by_position_chart("QB", 
                                FantasyFootballData::tier_analysis(draftdata %>% 
                                                                     filter(YRank != 0 & substr(Pos, 1, 2) == "QB"), 8),
                                input$numOfTeams, input$numofqb)
+      
     })
     
-    output$rbPointsChart <- renderPlot({
+    output$rbPointsChart <- renderPlotly({
       points_by_position_chart("RB",
                                FantasyFootballData::tier_analysis(draftdata %>% 
                                                                     filter(YRank != 0 & substr(Pos, 1, 2) == "RB")),
                                input$numOfTeams, input$numofrb)
     })
     
-    output$wrPointsChart <- renderPlot({
+    output$wrPointsChart <- renderPlotly({
       points_by_position_chart("WR",
                                FantasyFootballData::tier_analysis(draftdata %>% 
                                                                     filter(YRank != 0 & substr(Pos, 1, 2) == "WR"), 12),
                                input$numOfTeams, input$numofwr)
     })
     
-    output$tePointsChart <- renderPlot({
+    output$tePointsChart <- renderPlotly({
       points_by_position_chart("TE",
                                FantasyFootballData::tier_analysis(draftdata %>% 
                                                                     filter(YRank != 0 & substr(Pos, 1, 2) == "TE")),
                                input$numOfTeams, input$numofte)
     })
     
-    output$allPointsChart <- renderPlot({
+    output$allPointsChart <- renderPlotly({
       points_by_position_chart("All",
                                FantasyFootballData::tier_analysis(draftdata %>% filter(YRank != 0),
                                                                   input$numOfTeams))
     })
     
-    output$allTiersChart <- renderPlot({
-      ggplot() + geom_point(data = FantasyFootballData::tier_analysis(draftdata %>% filter(YRank != 0)),
-                            aes(x = YRank, y = VOR, color = cluster)) +
-        theme_bw() + theme(legend.position = "none")
+    output$allTiersChart <- renderPlotly({
+      (ggplot() + geom_point(data = FantasyFootballData::tier_analysis(draftdata %>% filter(YRank != 0)),
+                            aes(x = YRank, y = VOR, color = cluster, label = Player)) +
+        theme_bw() + theme(legend.position = "none")) %>%
+        ggplotly(tooltip = c("Player", "VOR", "YRank"))
     })
     
     output$risers <- renderTable({
