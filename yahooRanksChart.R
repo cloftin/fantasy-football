@@ -3,16 +3,21 @@ rankingsChart <- function(playerName) {
   
   yahooRanks <- FantasyFootballData::get_yahoo_rankings(update = FALSE)
   
-  weekDates <- data.frame(Week = c(1:(ncol(yahooRanks) - 2)), Date = as.Date(paste0(colnames(yahooRanks)[c(3:ncol(yahooRanks))], "/2018"), format = "%m/%d/%Y"))
+  weekDates <- data.frame(Week = c(1:(ncol(yahooRanks) - 3)), Date = as.Date(paste0(colnames(yahooRanks)[c(4:ncol(yahooRanks))], "/2018"), format = "%m/%d/%Y"))
   
-  colnames(yahooRanks) <- c(colnames(yahooRanks)[c(1:2)], c(1:(ncol(yahooRanks)-2)))
+  colnames(yahooRanks) <- c(colnames(yahooRanks)[c(1:3)], c(1:(ncol(yahooRanks)-3)))
   
   yahooRanks <- gather(yahooRanks, Week, YRank, 3:ncol(yahooRanks))
   yahooRanks <- merge(yahooRanks, weekDates)
   yahooRanks$Week <- NULL
 
   yahooRanks$Team <- gsub("ARZ", "ARI", yahooRanks$Team)
+  yahooRanks$Team <- gsub("JAX", "JAC", yahooRanks$Team)
+  
+  yahooRanks$YRank <- as.integer(yahooRanks$YRank)
+  
   minRanking <- yahooRanks %>% filter(Player == playerName)
+  
   maxRanking <- max(minRanking$YRank)
   minRanking <- min(minRanking$YRank)
   
