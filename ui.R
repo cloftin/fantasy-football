@@ -4,6 +4,7 @@ library(dplyr)
 library(shinydashboard)
 library(FantasyFootballData)
 library(shinycssloaders)
+library(plotly)
 
 playerdata <- read.csv(file="fpprojections.csv", colClasses=c("character","character","character","character","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric","numeric"))
 colnames(playerdata) = c("Name","Player","Position","Team","Points","VOR","Passing Yards","Passing TDs","Interceptions","Rushing Yards","Rushing TDs","Receptions","Recieving Yards","Recieving TDs","2 Points","Fumbles","posrank","drafted","rank","yahoorank","yposrank","voy")
@@ -126,26 +127,26 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                 br(),
                                 fluidRow(
                                   column(6,
-                                         plotOutput("qbPointsChart")
+                                         plotlyOutput("qbPointsChart")
                                   ),
                                   column(6,
-                                         plotOutput("rbPointsChart")
+                                         plotlyOutput("rbPointsChart")
                                   )
                                 ),
                                 fluidRow(
                                   column(6,
-                                         plotOutput("wrPointsChart")
+                                         plotlyOutput("wrPointsChart")
                                   ),
                                   column(6,
-                                         plotOutput("tePointsChart")
+                                         plotlyOutput("tePointsChart")
                                   )
                                 ),
                                 fluidRow(
                                   column(6,
-                                         plotOutput("allPointsChart")
+                                         plotlyOutput("allPointsChart")
                                   ),
                                   column(6,
-                                         plotOutput("allTiersChart")
+                                         plotlyOutput("allTiersChart")
                                   )
                                 )
                                 

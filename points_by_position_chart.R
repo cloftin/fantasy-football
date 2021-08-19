@@ -8,11 +8,11 @@ points_by_position_chart <- function(position, dat, numofteams, numofpos = 0) {
   }
   
   if(position == "All") {
-    g <- ggplot(data = dat, aes(x = PosRank, y = Points, colour = factor(substr(Pos, 1, 2)))) + 
-      geom_path() + geom_point() + theme_bw() +
+    g <- ggplot(data = dat, aes(x = PosRank, y = Points, colour = factor(substr(Pos, 1, 2)), label = Player)) + 
+      geom_point() + theme_bw() +
       ggtitle(position) + scale_colour_discrete(name = "Position") + theme(legend.position = "top")
   } else {
-    g <- ggplot(data = dat, aes(x = PosRank, y = Points, color = cluster)) + geom_point() + theme_bw() +
+    g <- ggplot(data = dat, aes(x = PosRank, y = Points, color = cluster, label = Player)) + geom_point() + theme_bw() +
       ggtitle(position) + theme(legend.position = "none")
     toeval <- "g <- g"
     for(i in 1:numofpos) {
@@ -27,6 +27,6 @@ points_by_position_chart <- function(position, dat, numofteams, numofpos = 0) {
   #   g <- g + geom_vline(aes(xintercept = 24), color = "#01A65A") + geom_vline(aes(xintercept = 36), color = "#01A65A")
   # }
   
-  g
+  plotly::ggplotly(g, tooltip = c("Player", "PosRank", "Points"))
   
 }
