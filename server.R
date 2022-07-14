@@ -28,6 +28,7 @@ drafted <- data.frame()
 # optimum <<- data.frame()
 if(!exists("projections")) {
   projections <- FantasyFootballData::get_projections()
+  write.csv(projections, "projections.csv", row.names = F)
 }
 if(!exists("fp")) {
   fp <- FantasyFootballData::get_projections()
@@ -149,6 +150,7 @@ shinyServer(function(input, output, clientData, session) {
         a <- a[order(-a$VOR),]
         rownames(a) <- c(1:nrow(a))
       }
+      write.csv(a, file = "player_data.csv")
       a
     })
     
