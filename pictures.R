@@ -2,8 +2,9 @@ library(XML) # HTML processing
 options(stringsAsFactors = FALSE)
 
 base.url = 'http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/'
-download.folder = "/Users/colin/Desktop/www"
-directory <- read.csv('fantasy/ids.csv')
+download.folder = "www"
+if(!(dir.exists(download.folder))) {dir.create(download.folder)}
+directory <- read.csv('ids.csv')
 directory$name <- toupper(gsub("[ ]","", directory$player))
 
 

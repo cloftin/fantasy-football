@@ -5,8 +5,9 @@ account: ctloftin
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15885
-bundleId: 4942713
+bundleId: 6268103
 url: https://ctloftin.shinyapps.io/fantasy/
-when: 1629405038.02283
+when: 1662326446.45918
+lastSyncTime: 1662326446.45919
 asMultiple: FALSE
 asStatic: FALSE

@@ -116,9 +116,12 @@ dashboardPage(header = dashboardHeader(title = "JARVIS"), skin = "green",
                                 br(),
                                 fluidRow(
                                   column(3,
+                                         selectInput("optimumPlayer", "Player", c(draftdata$Player), multiple=FALSE, selectize=TRUE),
+                                  ),
+                                  column(3,
                                          actionButton("optimize", label="Optimize")
                                          ),
-                                  column(9,
+                                  column(6,
                                          tableOutput("optimumTeam") %>% withSpinner(color="#17A65A")
                                          )
                                 )

@@ -225,7 +225,7 @@ shinyServer(function(input, output, clientData, session) {
           img(src="Odell Beckham.jpg", height = 100)
         } else {
           file = paste0(tolower(gsub(" |\\.|'|\\. |' ", "-", input$player)), ".jpg")
-          print(file)
+          # print(file)
           img(src=file, height = 100)
         }
       }
@@ -675,10 +675,10 @@ shinyServer(function(input, output, clientData, session) {
       if(input$numOfTeams != 12) {
         removeKeepers = FALSE
       }
-      optimal_draft(myteam = myTeam(),
+      optimal_draft(myteam = myTeam(), optimumPlayer = input$optimumPlayer,
                     available = draftdata[!(draftdata$Player %in% drafted$Player),], 
                     currentPick = (nrow(drafted) + 1), 
-                    myPick = input$whichPick, numTeams = input$numOfTeams, removeKeepers = removeKeepers)
+                    myPick = input$whichPick, numTeams = input$numOfTeams)
     })
     
     output$optimumTeam <- renderTable({
@@ -709,6 +709,7 @@ shinyServer(function(input, output, clientData, session) {
     })
     
     updateSelectInput(session, "player", choices = c("All", playerSet()$Player), selected="All")
+    updateSelectInput(session, "optimumPlayer", choices = c(playerSet()$Player))
     updateSelectInput(session, "consPlayer", choices = c("All", playerSet()$Player), selected="All")
     updateSelectInput(session, "gamelogPlayer", choices = playerSet()$Player)
     updateSelectInput(session, "yearlyPlayer", choices = playerSet()$Player)
